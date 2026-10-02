@@ -183,6 +183,15 @@ create policy "request_items: own insert" on request_items for insert
   with check (exists (select 1 from requests r where r.id = request_id and r.customer_id = auth.uid()));
 
 -- ============================================================================
+-- Grants: the policies above are the REAL security boundary. These grants just let
+-- the public API reach these tables at all (needed regardless of whether "Automatically
+-- expose new tables" was ticked when the project was created).
+-- ============================================================================
+grant usage on schema public to anon, authenticated;
+grant select, insert, update, delete on all tables in schema public to anon, authenticated;
+grant usage, select on all sequences in schema public to anon, authenticated;
+
+-- ============================================================================
 -- Storage: a public bucket for product photos & videos (admin uploads, everyone can view)
 -- ============================================================================
 insert into storage.buckets (id, name, public, file_size_limit) values ('product-media', 'product-media', true, 52428800)
