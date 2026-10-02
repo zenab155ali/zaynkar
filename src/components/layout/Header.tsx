@@ -105,7 +105,7 @@ export function Header() {
           <button type="button" onClick={openSearch} aria-label="Search" className={`${iconButton} lg:hidden`}>
             <Search size={21} strokeWidth={1.6} />
           </button>
-          <Link to={user ? '/my-requests' : '/signin'} aria-label={user ? 'My requests' : 'Sign in'} className={`${iconButton} hidden lg:grid`}>
+          <Link to={user ? '/my-requests' : '/signin'} aria-label={user ? 'My requests' : 'Sign in'} className={iconButton}>
             <User size={21} strokeWidth={1.6} />
           </Link>
           <Link to="/favorites" aria-label={`Favorites${favCount ? `, ${favCount} items` : ''}`} className={iconButton}>
