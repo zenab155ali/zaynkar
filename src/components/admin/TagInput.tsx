@@ -1,4 +1,4 @@
-import { useState, type KeyboardEvent } from 'react'
+import { useId, useState, type KeyboardEvent } from 'react'
 import { X } from 'lucide-react'
 
 interface TagInputProps {
@@ -12,6 +12,8 @@ interface TagInputProps {
 /** Type a value and press Enter (or comma) to add it as a chip — used for sizes. */
 export function TagInput({ label, values, onChange, placeholder, hint }: TagInputProps) {
   const [draft, setDraft] = useState('')
+  const inputId = useId()
+  const hintId = useId()
 
   const commit = () => {
     const v = draft.trim()
@@ -30,7 +32,9 @@ export function TagInput({ label, values, onChange, placeholder, hint }: TagInpu
 
   return (
     <div>
-      <label className="mb-1.5 block text-xs font-medium tracking-wide text-muted">{label}</label>
+      <label htmlFor={inputId} className="mb-1.5 block text-xs font-medium tracking-wide text-muted">
+        {label}
+      </label>
       <div className="flex flex-wrap items-center gap-2 border border-line bg-white p-2">
         {values.map((v) => (
           <span key={v} className="inline-flex items-center gap-1.5 bg-sand px-2.5 py-1.5 text-sm">
@@ -41,15 +45,21 @@ export function TagInput({ label, values, onChange, placeholder, hint }: TagInpu
           </span>
         ))}
         <input
+          id={inputId}
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
           onKeyDown={onKeyDown}
           onBlur={commit}
-          placeholder={values.length === 0 ? placeholder : ''}
+          placeholder={placeholder}
+          aria-describedby={hint ? hintId : undefined}
           className="min-w-24 flex-1 border-none bg-transparent p-1.5 text-sm outline-none"
         />
       </div>
-      {hint && <p className="mt-1 text-xs text-muted">{hint}</p>}
+      {hint && (
+        <p id={hintId} className="mt-1 text-xs text-muted">
+          {hint}
+        </p>
+      )}
     </div>
   )
 }

@@ -8,12 +8,12 @@ export const isSupabaseConfigured = Boolean(url && anonKey)
 
 /**
  * The ADMIN logs in with a plain username ("zenabkareem"), but Supabase Auth needs an
- * email. We map that one fixed username to a real (but non-mailable) email address
- * internally — the actual password check still happens securely inside Supabase, never
- * in this client code. See supabase/README.md for how the admin account is created.
+ * email behind the scenes. That email lives only in .env.local (never committed, never
+ * shown in the UI) — the actual password check still happens securely inside Supabase,
+ * never in this client code. See supabase/README.md for how the admin account is created.
  */
 export const ADMIN_USERNAME = 'zenabkareem'
-export const ADMIN_INTERNAL_EMAIL = 'zenabkareem@zaynkar-admin.internal'
+export const ADMIN_INTERNAL_EMAIL = (import.meta.env.VITE_ADMIN_EMAIL as string | undefined) || 'zenabkareem@zaynkar-admin.internal'
 
 /**
  * `null` until real credentials are provided. Every place that uses this checks for
