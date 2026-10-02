@@ -1,14 +1,16 @@
 import { Link } from 'react-router-dom'
-import { Camera, ChevronDown, Heart, User, X } from 'lucide-react'
+import { Camera, ChevronDown, Heart, Inbox, ShoppingBag, User, X } from 'lucide-react'
 import { Dialog } from '@/components/ui/Dialog'
 import { Flag } from '@/components/ui/Flag'
 import { Logo } from '@/components/ui/Logo'
 import { COUNTRY_LIST } from '@/data/countries'
 import { NAV_ITEMS } from '@/data/navigation'
+import { useAuth } from '@/context/AuthContext'
 import { useUI } from '@/context/UIContext'
 
 export function MobileMenu() {
   const { menuOpen, setMenuOpen, setImageSearchOpen } = useUI()
+  const { user } = useAuth()
   const close = () => setMenuOpen(false)
 
   return (
@@ -22,6 +24,9 @@ export function MobileMenu() {
         </div>
 
         <nav aria-label="Mobile" className="flex-1 px-4 py-2">
+          <Link to="/store" onClick={close} className="my-2 flex min-h-[3rem] items-center justify-center gap-2 bg-ink text-sm font-medium uppercase tracking-[0.14em] text-ivory">
+            <ShoppingBag size={16} aria-hidden="true" /> Shop Dresses
+          </Link>
           <ul className="divide-y divide-line">
             {NAV_ITEMS.map((item) => (
               <li key={item.label}>
@@ -72,8 +77,11 @@ export function MobileMenu() {
         </nav>
 
         <div className="space-y-1 border-t border-line bg-sand/60 px-4 py-4 text-sm">
+          <Link to={user ? '/my-requests' : '/signin'} onClick={close} className="flex items-center gap-3 py-2">
+            <Inbox size={18} strokeWidth={1.6} aria-hidden="true" /> {user ? 'My Requests' : 'Sign In / Sign Up'}
+          </Link>
           <Link to="/account" onClick={close} className="flex items-center gap-3 py-2">
-            <User size={18} strokeWidth={1.6} aria-hidden="true" /> My Account
+            <User size={18} strokeWidth={1.6} aria-hidden="true" /> My Account (demo)
           </Link>
           <Link to="/favorites" onClick={close} className="flex items-center gap-3 py-2">
             <Heart size={18} strokeWidth={1.6} aria-hidden="true" /> Favorites

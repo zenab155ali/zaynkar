@@ -4,6 +4,7 @@ import { Logo } from '@/components/ui/Logo'
 import { Flag } from '@/components/ui/Flag'
 import { SmartImage } from '@/components/ui/SmartImage'
 import { NAV_ITEMS, type NavItem } from '@/data/navigation'
+import { useAuth } from '@/context/AuthContext'
 import { useCart } from '@/context/CartContext'
 import { useFavorites } from '@/context/FavoritesContext'
 import { useUI } from '@/context/UIContext'
@@ -64,6 +65,7 @@ export function Header() {
   const { openSearch, setMenuOpen, setImageSearchOpen } = useUI()
   const { count: bagCount } = useCart()
   const { count: favCount } = useFavorites()
+  const { user } = useAuth()
 
   return (
     <header className="sticky top-0 z-40 border-b border-line bg-ivory/95 backdrop-blur supports-[backdrop-filter]:bg-ivory/85">
@@ -103,7 +105,7 @@ export function Header() {
           <button type="button" onClick={openSearch} aria-label="Search" className={`${iconButton} lg:hidden`}>
             <Search size={21} strokeWidth={1.6} />
           </button>
-          <Link to="/account" aria-label="Account" className={`${iconButton} hidden lg:grid`}>
+          <Link to={user ? '/my-requests' : '/signin'} aria-label={user ? 'My requests' : 'Sign in'} className={`${iconButton} hidden lg:grid`}>
             <User size={21} strokeWidth={1.6} />
           </Link>
           <Link to="/favorites" aria-label={`Favorites${favCount ? `, ${favCount} items` : ''}`} className={iconButton}>
@@ -120,6 +122,16 @@ export function Header() {
       {/* Desktop navigation */}
       <nav aria-label="Main" className="relative hidden border-t border-line/70 lg:block">
         <ul className="container-page flex h-11 items-stretch justify-center gap-9 xl:gap-11">
+          <li className="flex items-stretch">
+            <NavLink
+              to="/store"
+              className={({ isActive }) =>
+                `flex items-center border-b-2 bg-ink px-3 text-[0.75rem] font-medium uppercase tracking-[0.14em] text-ivory transition-colors ${isActive ? 'border-mocha' : 'border-transparent hover:border-mocha'}`
+              }
+            >
+              Shop Dresses
+            </NavLink>
+          </li>
           {NAV_ITEMS.map((item) => (
             <li key={item.label} className="group flex items-stretch">
               <NavLink

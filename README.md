@@ -1,8 +1,14 @@
 # ZAYNKAR
 
-An early frontend prototype of **ZAYNKAR** — a global fashion marketplace connecting independent stores and brands from different countries (starting with Turkey).
+**ZAYNKAR** is a real, live store for dresses (`/store`), plus the original frontend prototype of a wider global marketplace concept (everything else) kept for reference.
 
-> Prototype only: all stores, products, reviews and orders are mock data. There is no backend, no real authentication, and **no payments** — checkout is a clearly-labelled demo.
+## The real store
+
+- **Customers**: browse at `/store`, sign up / sign in, pick a size and colour, and submit their list at `/selections` — no payment is taken; the store owner fulfils requests in person. Customers can see their own submitted lists at `/my-requests`, and search any item by its unique code.
+- **Admin** (`/admin/login`, username `zenabkareem`): add/edit/delete products — name, description, price, sizes, colours (each with its own optional photo), and any number of general photos or videos. New categories (e.g. "Shoes") can be added any time without a code change. Submitted customer requests are visible at `/admin/requests`.
+- **Data**: a real Supabase (Postgres) database — see [`supabase/README.md`](supabase/README.md) to connect it (one-time setup) and [`supabase/schema.sql`](supabase/schema.sql) for the full schema and security rules.
+
+> The rest of this README (and everything under `/shop`, `/bag`, `/checkout`, etc.) describes the **original prototype**: mock stores, mock products and a demo checkout, kept as a reference for the wider marketplace vision. It has no connection to the real store above.
 
 ## Live site
 
@@ -55,7 +61,11 @@ src/
 
 | Route | Page |
 | --- | --- |
-| `/` | Homepage |
+| `/store`, `/store/:code` | **Real** live product listing and detail (by code) |
+| `/signup`, `/signin` | **Real** customer accounts |
+| `/selections`, `/my-requests` | **Real** pick-items-then-submit flow and a customer's own history |
+| `/admin/login`, `/admin/products`, `/admin/requests` | **Real** admin dashboard |
+| `/` | Homepage (prototype) |
 | `/shop/:slug` | Collections & categories (`women`, `new-in`, `modest`, `dresses`, `shoes`, `bags`, `hijabs`, `abayas`, `sale`, …) |
 | `/country/:code` | Country collections (`TR`, `IT`, `KR`, `AE`) |
 | `/product/:slug` | Product page |

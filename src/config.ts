@@ -18,4 +18,5 @@ export const STORAGE_KEYS = {
   currency: 'zaynkar:currency:v1',
   cookies: 'zaynkar:cookies:v1',
   recentSearches: 'zaynkar:searches:v1',
+  selections: 'zaynkar:selections:v1',
 } as const
