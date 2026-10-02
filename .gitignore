@@ -1,5 +1,9 @@
 node_modules
 dist
+dist-root
+dist-v1
+pages-stage
+gh-pages-wt
 *.local
 *.log
 .DS_Store

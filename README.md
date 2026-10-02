@@ -4,6 +4,12 @@ An early frontend prototype of **ZAYNKAR** — a global fashion marketplace conn
 
 > Prototype only: all stores, products, reviews and orders are mock data. There is no backend, no real authentication, and **no payments** — checkout is a clearly-labelled demo.
 
+## Live site
+
+**https://zenab155ali.github.io/zaynkar/**
+
+Deployed on GitHub Pages. Every deploy keeps a permanent link under [`/versions/`](https://zenab155ali.github.io/zaynkar/versions/), so earlier versions stay reachable after a new one is published — see [`deploy/README.md`](deploy/README.md) for how deploys work.
+
 ## Run it
 
 Requires Node.js 20+.
