@@ -1,0 +1,264 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-display: "Cormorant Garamond", "Playfair Display", Georgia, "Times New Roman", serif;
+
+  --color-ivory: #faf8f5;
+  --color-sand: #f1ebe3;
+  --color-sand-deep: #e6ddd0;
+  --color-line: #e4ddd3;
+  --color-ink: #1b1917;
+  --color-muted: #6c645b;
+  --color-taupe: #8b7d6d;
+  --color-mocha: #6b5342;
+  --color-sale: #b4322b;
+  --color-success: #3b6b4f;
+
+  --breakpoint-xs: 30rem;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    background-color: var(--color-ivory);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+  button,
+  [role="button"],
+  summary,
+  select,
+  label[for] {
+    cursor: pointer;
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-ink);
+    outline-offset: 2px;
+  }
+  ::selection {
+    background: var(--color-sand-deep);
+  }
+  details > summary {
+    list-style: none;
+  }
+  details > summary::-webkit-details-marker {
+    display: none;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@utility scrollbar-none {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@layer components {
+  .container-page {
+    width: 100%;
+    max-width: 1520px;
+    margin-inline: auto;
+    padding-inline: 1rem;
+  }
+  @media (min-width: 640px) {
+    .container-page {
+      padding-inline: 1.5rem;
+    }
+  }
+  @media (min-width: 1024px) {
+    .container-page {
+      padding-inline: 2.5rem;
+    }
+  }
+
+  .eyebrow {
+    font-size: 0.6875rem;
+    line-height: 1rem;
+    font-weight: 500;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+  }
+
+  .display {
+    font-family: var(--font-display);
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    line-height: 1.05;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    height: 3rem;
+    padding-inline: 1.75rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    border: 1px solid transparent;
+    transition:
+      background-color 0.2s,
+      color 0.2s,
+      border-color 0.2s;
+  }
+  .btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+  .btn-primary {
+    background: var(--color-ink);
+    color: var(--color-ivory);
+    border-color: var(--color-ink);
+  }
+  .btn-primary:hover:not(:disabled) {
+    background: var(--color-mocha);
+    border-color: var(--color-mocha);
+  }
+  .btn-outline {
+    background: transparent;
+    color: var(--color-ink);
+    border-color: var(--color-ink);
+  }
+  .btn-outline:hover:not(:disabled) {
+    background: var(--color-ink);
+    color: var(--color-ivory);
+  }
+  .btn-light {
+    background: var(--color-ivory);
+    color: var(--color-ink);
+    border-color: var(--color-ivory);
+  }
+  .btn-light:hover:not(:disabled) {
+    background: transparent;
+    color: var(--color-ivory);
+  }
+  .btn-sm {
+    height: 2.5rem;
+    padding-inline: 1.25rem;
+  }
+
+  .field {
+    width: 100%;
+    height: 3rem;
+    padding-inline: 0.875rem;
+    background: #fff;
+    border: 1px solid var(--color-line);
+    font-size: 0.875rem;
+    color: var(--color-ink);
+    transition: border-color 0.15s;
+  }
+  .field::placeholder {
+    color: #a39a8f;
+  }
+  .field:hover {
+    border-color: var(--color-taupe);
+  }
+  .field:focus {
+    outline: none;
+    border-color: var(--color-ink);
+    box-shadow: 0 0 0 1px var(--color-ink);
+  }
+  .field[aria-invalid="true"] {
+    border-color: var(--color-sale);
+  }
+  .field[readonly] {
+    background: var(--color-sand);
+    color: var(--color-muted);
+  }
+
+  .link-underline {
+    background-image: linear-gradient(currentColor, currentColor);
+    background-size: 100% 1px;
+    background-position: 0 100%;
+    background-repeat: no-repeat;
+    padding-bottom: 2px;
+    transition: background-size 0.25s;
+  }
+  .link-underline:hover {
+    background-size: 0% 1px;
+  }
+}
+
+/* Native <dialog> slide-in motion (kept short, disabled by reduced-motion rule above) */
+dialog[open].dialog-right {
+  animation: slide-in-right 0.26s cubic-bezier(0.22, 1, 0.36, 1);
+}
+dialog[open].dialog-left {
+  animation: slide-in-left 0.26s cubic-bezier(0.22, 1, 0.36, 1);
+}
+dialog[open].dialog-top {
+  animation: slide-in-top 0.24s cubic-bezier(0.22, 1, 0.36, 1);
+}
+dialog[open].dialog-center {
+  animation: fade-up 0.22s ease-out;
+}
+dialog::backdrop {
+  background: rgb(27 25 23 / 0.45);
+}
+@keyframes slide-in-right {
+  from {
+    transform: translateX(100%);
+  }
+}
+@keyframes slide-in-left {
+  from {
+    transform: translateX(-100%);
+  }
+}
+@keyframes slide-in-top {
+  from {
+    transform: translateY(-16px);
+    opacity: 0;
+  }
+}
+@keyframes fade-up {
+  from {
+    transform: translateY(12px);
+    opacity: 0;
+  }
+}
+@keyframes toast-in {
+  from {
+    transform: translateY(12px);
+    opacity: 0;
+  }
+}
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  background: var(--color-sand);
+}
+.skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.55), transparent);
+  animation: shimmer 1.4s infinite;
+}
