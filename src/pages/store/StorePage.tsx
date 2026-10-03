@@ -1,4 +1,4 @@
-import { useMemo, useState, type FormEvent } from 'react'
+import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Search, Shirt, SlidersHorizontal, X } from 'lucide-react'
 import { Dialog } from '@/components/ui/Dialog'
@@ -26,6 +26,10 @@ interface Filters {
   priceMax: number | null
 }
 const EMPTY_FILTERS: Filters = { sizes: [], colors: [], priceMin: null, priceMax: null }
+
+// Lets "الرجوع لصفحة التسوق" put the customer back exactly where they left off,
+// instead of dropping them at the top of a long product list every time.
+const SCROLL_KEY = 'zaynkar:store-scroll'
 
 function sortProducts(list: CatalogProduct[], sort: SortKey): CatalogProduct[] {
   const copy = [...list]
@@ -122,6 +126,30 @@ function StoreGrid() {
   const [sort, setSort] = useState<SortKey>('recent')
   const [filters, setFilters] = useState<Filters>(EMPTY_FILTERS)
   const [drawerOpen, setDrawerOpen] = useState(false)
+  const restoredScrollRef = useRef(false)
+
+  useEffect(() => {
+    const onScroll = () => {
+      try {
+        sessionStorage.setItem(SCROLL_KEY, String(window.scrollY))
+      } catch {
+        // ignore (private browsing / blocked storage)
+      }
+    }
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
+
+  useEffect(() => {
+    if (loading || restoredScrollRef.current) return
+    restoredScrollRef.current = true
+    try {
+      const saved = sessionStorage.getItem(SCROLL_KEY)
+      if (saved) requestAnimationFrame(() => window.scrollTo(0, Number(saved)))
+    } catch {
+      // ignore
+    }
+  }, [loading])
 
   const active = useMemo(() => products.filter((p) => p.isActive), [products])
   const allSizes = useMemo(() => [...new Set(active.flatMap((p) => p.sizes))], [active])

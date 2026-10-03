@@ -41,7 +41,7 @@ export function MobileMenu() {
             <Heart size={18} strokeWidth={1.6} aria-hidden="true" /> المفضلة
           </Link>
           <Link to="/selections" onClick={close} className="flex items-center gap-3 py-2">
-            <ShoppingBag size={18} strokeWidth={1.6} aria-hidden="true" /> مختاراتي
+            <ShoppingBag size={18} strokeWidth={1.6} aria-hidden="true" /> سلة التسوق
           </Link>
           {user && (
             <button type="button" onClick={handleSignOut} className="flex w-full items-center gap-3 py-2 text-start text-sale">

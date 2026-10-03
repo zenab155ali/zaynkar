@@ -23,7 +23,7 @@ export function Header() {
   const { likedIds } = useLikes()
   const { user } = useAuth()
   const location = useLocation()
-  const onStorePages = location.pathname.startsWith('/store')
+  const onStoreListing = location.pathname === '/store'
 
   return (
     <header className="sticky top-0 z-40 border-b border-line bg-ivory/95 backdrop-blur supports-[backdrop-filter]:bg-ivory/85">
@@ -36,17 +36,12 @@ export function Header() {
           <nav aria-label="الرئيسية" className="flex items-center">
             <NavLink
               to="/store"
-              className={({ isActive }) =>
-                `flex h-8 items-center whitespace-nowrap px-3 text-[0.68rem] font-medium uppercase tracking-[0.1em] transition-colors sm:h-9 sm:px-4 sm:text-[0.75rem] sm:tracking-[0.14em] ${
-                  onStorePages ? (isActive ? 'bg-ink text-ivory' : 'bg-ink/90 text-ivory hover:bg-ink') : 'bg-mocha text-ivory hover:bg-ink'
-                }`
-              }
+              className={`flex h-8 items-center whitespace-nowrap px-3 text-[0.68rem] font-medium uppercase tracking-[0.1em] transition-colors sm:h-9 sm:px-4 sm:text-[0.75rem] sm:tracking-[0.14em] ${
+                onStoreListing ? 'bg-ink text-ivory' : 'bg-mocha text-ivory hover:bg-ink'
+              }`}
             >
-              {onStorePages ? (
-                <>
-                  <span className="sm:hidden">تسوقي</span>
-                  <span className="hidden sm:inline">تسوقي الفساتين</span>
-                </>
+              {onStoreListing ? (
+                <span>تسوقي</span>
               ) : (
                 <>
                   <span className="sm:hidden">رجوع للتسوق</span>
@@ -67,7 +62,7 @@ export function Header() {
             <Heart size={21} strokeWidth={1.6} />
             <CountBadge count={likedIds.size} />
           </Link>
-          <Link to="/selections" aria-label={`مختاراتي${selectionsCount ? `، ${selectionsCount} عناصر` : ''}`} className={`${iconButton} -me-2.5 lg:me-0`}>
+          <Link to="/selections" aria-label={`سلة التسوق${selectionsCount ? `، ${selectionsCount} عناصر` : ''}`} className={`${iconButton} -me-2.5 lg:me-0`}>
             <ShoppingBag size={21} strokeWidth={1.6} />
             <CountBadge count={selectionsCount} />
           </Link>

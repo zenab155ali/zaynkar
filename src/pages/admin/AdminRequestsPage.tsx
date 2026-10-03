@@ -27,6 +27,7 @@ interface RawMessage {
 }
 interface RawRequest {
   id: string
+  order_number: string
   customer_id: string | null
   status: CustomerRequest['status']
   stage: RequestStage
@@ -102,6 +103,7 @@ export default function AdminRequestsPage() {
     setRequests(
       rows.map((r) => ({
         id: r.id,
+        orderNumber: r.order_number,
         customerId: r.customer_id,
         status: r.status,
         stage: r.stage,
@@ -193,6 +195,7 @@ export default function AdminRequestsPage() {
                       </div>
                     </div>
                     <div className="flex flex-wrap items-center gap-3">
+                      <span className="font-mono text-xs font-medium text-muted">{r.orderNumber}</span>
                       <time dateTime={r.createdAt} className="text-xs text-muted">
                         {new Date(r.createdAt).toLocaleString()}
                       </time>

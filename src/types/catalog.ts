@@ -91,6 +91,8 @@ export interface RequestMessage {
 
 export interface CustomerRequest {
   id: string
+  /** Short human-friendly reference, e.g. "ORD-00001" — shown instead of the raw id. */
+  orderNumber: string
   customerId: string | null
   status: RequestStatus
   stage: RequestStage

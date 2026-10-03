@@ -40,7 +40,7 @@ function ProductView() {
       return
     }
     add({ productId: product.id, size, colorName: colorName || 'غير محدد', quantity: 1 })
-    toast({ title: 'أُضيف إلى مختاراتك', description: `${product.name} · ${colorName} · ${size}`, action: { label: 'عرض مختاراتي', to: '/selections' } })
+    toast({ title: 'أُضيف إلى سلة التسوق', description: `${product.name} · ${colorName} · ${size}`, action: { label: 'عرض سلة التسوق', to: '/selections' } })
   }
 
   return (
@@ -107,10 +107,10 @@ function ProductView() {
           )}
 
           <button type="button" onClick={onAdd} className="btn btn-primary mt-8 !h-14 w-full">
-            <ShoppingBag size={18} aria-hidden="true" /> أضيفي إلى مختاراتي
+            <ShoppingBag size={18} aria-hidden="true" /> أضيفي إلى سلة التسوق
           </button>
           <button type="button" onClick={() => navigate('/selections')} className="mt-3 w-full text-center text-xs underline underline-offset-4">
-            عرض مختاراتي
+            عرض سلة التسوق
           </button>
         </div>
       </div>

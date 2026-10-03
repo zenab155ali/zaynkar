@@ -12,7 +12,7 @@ import { supabase } from '@/lib/supabase'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 
 function SelectionsView() {
-  useDocumentTitle('مختاراتي')
+  useDocumentTitle('سلة التسوق')
   const { lines, remove, setQuantity, clear } = useSelections()
   const { user } = useAuth()
   const { format } = useCurrency()
@@ -102,7 +102,7 @@ function SelectionsView() {
   if (guestSubmitted) {
     return (
       <div className="container-page py-8">
-        <Breadcrumbs items={[{ label: 'الرئيسية', to: '/' }, { label: 'مختاراتي' }]} />
+        <Breadcrumbs items={[{ label: 'الرئيسية', to: '/' }, { label: 'سلة التسوق' }]} />
         <EmptyState
           icon={<ShoppingBag size={26} strokeWidth={1.3} />}
           title="تم استلام طلبكِ"
@@ -119,8 +119,8 @@ function SelectionsView() {
   if (lines.length === 0) {
     return (
       <div className="container-page py-8">
-        <Breadcrumbs items={[{ label: 'الرئيسية', to: '/' }, { label: 'مختاراتي' }]} />
-        <EmptyState icon={<ShoppingBag size={26} strokeWidth={1.3} />} title="لا توجد مختارات بعد" description="اختاري بعض الفساتين وعودي إلى هنا لإرسال قائمتكِ.">
+        <Breadcrumbs items={[{ label: 'الرئيسية', to: '/' }, { label: 'سلة التسوق' }]} />
+        <EmptyState icon={<ShoppingBag size={26} strokeWidth={1.3} />} title="سلة التسوق فارغة" description="اختاري بعض المنتجات وعودي إلى هنا لإرسال قائمتكِ.">
           <Link to="/store" className="btn btn-primary">
             تصفحي الفساتين
           </Link>
@@ -131,8 +131,8 @@ function SelectionsView() {
 
   return (
     <div className="container-page py-8">
-      <Breadcrumbs items={[{ label: 'الرئيسية', to: '/' }, { label: 'مختاراتي' }]} />
-      <h1 className="display mt-4 text-4xl">مختاراتي</h1>
+      <Breadcrumbs items={[{ label: 'الرئيسية', to: '/' }, { label: 'سلة التسوق' }]} />
+      <h1 className="display mt-4 text-4xl">سلة التسوق</h1>
 
       <ul className="mt-6 divide-y divide-line border-y border-line">
         {lines.map((l) => (

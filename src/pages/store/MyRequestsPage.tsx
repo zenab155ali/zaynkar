@@ -31,6 +31,7 @@ interface RawMessage {
 }
 interface RawRequest {
   id: string
+  order_number: string
   customer_id: string
   status: RequestStatus
   stage: RequestStage
@@ -64,6 +65,7 @@ function MyRequestsView() {
         setRequests(
           rows.map((r) => ({
             id: r.id,
+            orderNumber: r.order_number,
             customerId: r.customer_id,
             status: r.status,
             stage: r.stage,
@@ -121,9 +123,14 @@ function MyRequestsView() {
             return (
               <li key={r.id} className="border border-line bg-white">
                 <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line bg-sand/40 px-5 py-3">
-                  <time dateTime={r.createdAt} className="text-xs text-muted">
-                    {new Date(r.createdAt).toLocaleString()}
-                  </time>
+                  <div>
+                    <p className="font-mono text-sm font-medium" dir="ltr">
+                      {r.orderNumber}
+                    </p>
+                    <time dateTime={r.createdAt} className="text-xs text-muted">
+                      {new Date(r.createdAt).toLocaleString()}
+                    </time>
+                  </div>
                   <div className="flex flex-wrap items-center gap-4 text-sm">
                     {profile?.phone && (
                       <span className="flex items-center gap-1.5 text-muted" dir="ltr">
