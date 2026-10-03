@@ -1,4 +1,4 @@
-import { Link, NavLink } from 'react-router-dom'
+import { Link, NavLink, useLocation } from 'react-router-dom'
 import { Heart, Menu, ShoppingBag, User } from 'lucide-react'
 import { Logo } from '@/components/ui/Logo'
 import { useAuth } from '@/context/AuthContext'
@@ -22,6 +22,8 @@ export function Header() {
   const { count: selectionsCount } = useSelections()
   const { likedIds } = useLikes()
   const { user } = useAuth()
+  const location = useLocation()
+  const onStorePages = location.pathname.startsWith('/store')
 
   return (
     <header className="sticky top-0 z-40 border-b border-line bg-ivory/95 backdrop-blur supports-[backdrop-filter]:bg-ivory/85">
@@ -36,12 +38,21 @@ export function Header() {
               to="/store"
               className={({ isActive }) =>
                 `flex h-8 items-center whitespace-nowrap px-3 text-[0.68rem] font-medium uppercase tracking-[0.1em] transition-colors sm:h-9 sm:px-4 sm:text-[0.75rem] sm:tracking-[0.14em] ${
-                  isActive ? 'bg-ink text-ivory' : 'bg-ink/90 text-ivory hover:bg-ink'
+                  onStorePages ? (isActive ? 'bg-ink text-ivory' : 'bg-ink/90 text-ivory hover:bg-ink') : 'bg-mocha text-ivory hover:bg-ink'
                 }`
               }
             >
-              <span className="sm:hidden">تسوقي</span>
-              <span className="hidden sm:inline">تسوقي الفساتين</span>
+              {onStorePages ? (
+                <>
+                  <span className="sm:hidden">تسوقي</span>
+                  <span className="hidden sm:inline">تسوقي الفساتين</span>
+                </>
+              ) : (
+                <>
+                  <span className="sm:hidden">رجوع للتسوق</span>
+                  <span className="hidden sm:inline">الرجوع لصفحة التسوق</span>
+                </>
+              )}
             </NavLink>
           </nav>
         </div>
