@@ -1,6 +1,6 @@
 {
   "repo": "zenab155ali/zaynkar",
-  "latestVersion": 7,
+  "latestVersion": 8,
   "versions": [
     { "version": 1, "date": "2026-10-02", "commit": "cd85591", "note": "Initial deployment" },
     { "version": 2, "date": "2026-10-03", "commit": "3ecb77e", "note": "Real admin + customer system (Supabase)" },
@@ -8,6 +8,7 @@
     { "version": 4, "date": "2026-10-03", "commit": "7d221a0", "note": "Arabic/RTL, likes, filters, paste-upload" },
     { "version": 5, "date": "2026-10-03", "commit": "b54961d", "note": "Fix: archived-version deep links" },
     { "version": 6, "date": "2026-10-03", "commit": "920eb65", "note": "English hero copy, real Instagram link, customer sign-out" },
-    { "version": 7, "date": "2026-10-03", "commit": "ad36a3d", "note": "Order-stage tracking, guest checkout, admin messages" }
+    { "version": 7, "date": "2026-10-03", "commit": "ad36a3d", "note": "Order-stage tracking, guest checkout, admin messages" },
+    { "version": 8, "date": "2026-10-03", "commit": "4a6aee1", "note": "Fix: Shop Dresses link hidden on mobile" }
   ]
 }
