@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Eye, EyeOff, Package, Pencil, Plus, Trash2, Video } from 'lucide-react'
+import { Eye, EyeOff, Heart, Package, Pencil, Plus, ShoppingBag, Trash2, Video } from 'lucide-react'
 import { SmartImage } from '@/components/ui/SmartImage'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { useCurrency } from '@/context/CurrencyContext'
@@ -77,6 +77,8 @@ export default function AdminProductsPage() {
                 <th className="px-4 py-3 font-medium">Price</th>
                 <th className="px-4 py-3 font-medium">Colors</th>
                 <th className="px-4 py-3 font-medium">Sizes</th>
+                <th className="px-4 py-3 font-medium">Picked</th>
+                <th className="px-4 py-3 font-medium">Liked</th>
                 <th className="px-4 py-3 font-medium">Status</th>
                 <th className="px-4 py-3 font-medium text-right">Actions</th>
               </tr>
@@ -100,6 +102,16 @@ export default function AdminProductsPage() {
                   <td className="px-4 py-3">{format(p.price)}</td>
                   <td className="px-4 py-3 text-muted">{p.colors.length}</td>
                   <td className="px-4 py-3 text-muted">{p.sizes.join(', ') || '—'}</td>
+                  <td className="px-4 py-3">
+                    <span className="inline-flex items-center gap-1 text-muted">
+                      <ShoppingBag size={13} /> {p.pickCount}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3">
+                    <span className="inline-flex items-center gap-1 text-muted">
+                      <Heart size={13} /> {p.likeCount}
+                    </span>
+                  </td>
                   <td className="px-4 py-3">
                     <button
                       type="button"

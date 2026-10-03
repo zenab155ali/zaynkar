@@ -6,7 +6,7 @@ import { useAuth } from '@/context/AuthContext'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 
 export default function SignInPage() {
-  useDocumentTitle('Sign in')
+  useDocumentTitle('تسجيل الدخول')
   const { user, signInCustomer } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
@@ -36,24 +36,24 @@ export default function SignInPage() {
     <RequireSupabase>
       <div className="container-page flex min-h-[70vh] items-center justify-center py-16">
         <div className="w-full max-w-sm border border-line bg-white p-8">
-          <h1 className="display text-2xl">Sign in</h1>
-          <p className="mt-1 text-sm text-muted">Welcome back.</p>
+          <h1 className="display text-2xl">تسجيل الدخول</h1>
+          <p className="mt-1 text-sm text-muted">مرحبًا بعودتكِ.</p>
           <form onSubmit={onSubmit} className="mt-6 space-y-4">
-            <TextField label="Email" type="email" required autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} />
-            <TextField label="Password" type="password" required autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} />
+            <TextField label="البريد الإلكتروني" type="email" required autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+            <TextField label="كلمة المرور" type="password" required autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} />
             {error && (
               <p role="alert" className="text-sm text-sale">
                 {error}
               </p>
             )}
             <button type="submit" disabled={submitting} className="btn btn-primary w-full">
-              {submitting ? 'Signing in…' : 'Sign in'}
+              {submitting ? 'جارٍ تسجيل الدخول…' : 'تسجيل الدخول'}
             </button>
           </form>
           <p className="mt-6 text-center text-sm text-muted">
-            New here?{' '}
+            حساب جديد؟{' '}
             <Link to="/signup" className="font-medium text-ink underline underline-offset-2">
-              Create an account
+              إنشاء حساب
             </Link>
           </p>
         </div>

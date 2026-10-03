@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useRef, useState, type ClipboardEvent } from 'react'
 import { Loader2, Upload, X } from 'lucide-react'
 import { uploadProductMedia, validateMediaFile } from '@/lib/uploadProductMedia'
 import type { MediaType } from '@/types/catalog'
@@ -45,10 +45,22 @@ export function MediaUploadField({ value, onChange, label, allowVideo = true, cl
 
   const accept = allowVideo ? 'image/jpeg,image/png,image/webp,video/mp4,video/webm,video/quicktime' : 'image/jpeg,image/png,image/webp'
 
+  const onPaste = (e: ClipboardEvent) => {
+    const item = [...e.clipboardData.items].find((i) => i.type.startsWith('image/') || (allowVideo && i.type.startsWith('video/')))
+    const file = item?.getAsFile()
+    if (file) {
+      e.preventDefault()
+      onPick(file)
+    }
+  }
+
   return (
     <div className={className}>
       {label && <p className="mb-1.5 text-xs font-medium tracking-wide text-muted">{label}</p>}
-      <div className="relative flex aspect-[3/4] w-28 items-center justify-center overflow-hidden border border-dashed border-line bg-sand">
+      <div
+        className="relative flex aspect-[3/4] w-28 items-center justify-center overflow-hidden border border-dashed border-line bg-sand focus-within:ring-1 focus-within:ring-ink"
+        onPaste={onPaste}
+      >
         {value ? (
           <>
             {value.type === 'video' ? (
@@ -71,11 +83,12 @@ export function MediaUploadField({ value, onChange, label, allowVideo = true, cl
         ) : (
           <button
             type="button"
+            tabIndex={0}
             onClick={() => inputRef.current?.click()}
-            className="flex h-full w-full flex-col items-center justify-center gap-1.5 text-muted transition-colors hover:text-ink"
+            className="flex h-full w-full flex-col items-center justify-center gap-1.5 p-2 text-muted outline-none transition-colors hover:text-ink"
           >
             <Upload size={18} aria-hidden="true" />
-            <span className="text-center text-[0.625rem] leading-tight">{allowVideo ? 'Upload photo or video' : 'Upload photo'}</span>
+            <span className="text-center text-[0.625rem] leading-tight">{allowVideo ? 'Upload or paste a photo/video' : 'Upload or paste a photo'}</span>
           </button>
         )}
       </div>

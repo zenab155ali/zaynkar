@@ -16,6 +16,7 @@ import AdminLoginPage from '@/pages/admin/AdminLoginPage'
 import AdminProductFormPage from '@/pages/admin/AdminProductFormPage'
 import AdminProductsPage from '@/pages/admin/AdminProductsPage'
 import AdminRequestsPage from '@/pages/admin/AdminRequestsPage'
+import MyLikedItemsPage from '@/pages/store/MyLikedItemsPage'
 import MyRequestsPage from '@/pages/store/MyRequestsPage'
 import SelectionsPage from '@/pages/store/SelectionsPage'
 import SignInPage from '@/pages/store/SignInPage'
@@ -46,6 +47,7 @@ export default function App() {
         <Route path="signup" element={<SignUpPage />} />
         <Route path="signin" element={<SignInPage />} />
         <Route path="my-requests" element={<MyRequestsPage />} />
+        <Route path="liked" element={<MyLikedItemsPage />} />
 
         {/* Prototype marketplace demo (mock data) — kept for reference / future expansion. */}
         <Route path="shop" element={<Navigate to="/shop/women" replace />} />

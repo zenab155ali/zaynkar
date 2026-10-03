@@ -11,7 +11,7 @@ import { supabase } from '@/lib/supabase'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import type { CustomerRequest, RequestStatus } from '@/types/catalog'
 
-const STATUS_LABEL: Record<RequestStatus, string> = { new: 'Received', seen: 'Being prepared', fulfilled: 'Ready / fulfilled' }
+const STATUS_LABEL: Record<RequestStatus, string> = { new: 'تم الاستلام', seen: 'قيد التجهيز', fulfilled: 'جاهز' }
 const STATUS_STYLES: Record<RequestStatus, string> = {
   new: 'bg-sale/10 text-sale',
   seen: 'bg-sand text-mocha',
@@ -39,7 +39,7 @@ interface RawRequest {
 }
 
 function MyRequestsView() {
-  useDocumentTitle('My Requests')
+  useDocumentTitle('طلباتي')
   const { user } = useAuth()
   const { format } = useCurrency()
   const [loading, setLoading] = useState(true)
@@ -82,15 +82,15 @@ function MyRequestsView() {
 
   return (
     <div className="container-page py-8">
-      <Breadcrumbs items={[{ label: 'Home', to: '/' }, { label: 'My Requests' }]} />
-      <h1 className="display mt-4 text-4xl">My Requests</h1>
+      <Breadcrumbs items={[{ label: 'الرئيسية', to: '/' }, { label: 'طلباتي' }]} />
+      <h1 className="display mt-4 text-4xl">طلباتي</h1>
 
       {loading ? (
-        <p className="mt-6 text-sm text-muted">Loading…</p>
+        <p className="mt-6 text-sm text-muted">جارٍ التحميل…</p>
       ) : requests.length === 0 ? (
-        <EmptyState icon={<Inbox size={26} strokeWidth={1.3} />} title="No requests yet" description="Lists you submit will appear here.">
+        <EmptyState icon={<Inbox size={26} strokeWidth={1.3} />} title="لا توجد طلبات بعد" description="القوائم التي ترسلينها ستظهر هنا.">
           <Link to="/store" className="btn btn-primary">
-            Browse dresses
+            تصفحي الفساتين
           </Link>
         </EmptyState>
       ) : (
@@ -113,7 +113,11 @@ function MyRequestsView() {
                     <div className="min-w-0 flex-1 text-sm">
                       <p className="font-medium">{item.productName}</p>
                       <p className="mt-0.5 text-xs text-muted">
-                        Code: <span className="font-mono">{item.productCode}</span> · {item.colorName} · Size {item.size} · Qty {item.quantity}
+                        الرمز:{' '}
+                        <span className="font-mono" dir="ltr">
+                          {item.productCode}
+                        </span>{' '}
+                        · {item.colorName} · المقاس {item.size} · الكمية {item.quantity}
                       </p>
                     </div>
                     <p className="text-sm">{format(item.price * item.quantity)}</p>

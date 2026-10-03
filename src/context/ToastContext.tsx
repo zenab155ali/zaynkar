@@ -31,7 +31,7 @@ function ToastCard({ item, onDismiss }: { item: ToastItem; onDismiss: (id: numbe
 
   return (
     <div
-      className="pointer-events-auto flex w-full items-center gap-3 border border-line bg-white p-3 pr-2 shadow-xl sm:w-[22rem]"
+      className="pointer-events-auto flex w-full items-center gap-3 border border-line bg-white p-3 pe-2 shadow-xl sm:w-[22rem]"
       style={{ animation: 'toast-in 0.25s ease-out' }}
     >
       {item.image ? (
@@ -62,7 +62,7 @@ function ToastCard({ item, onDismiss }: { item: ToastItem; onDismiss: (id: numbe
       <button
         type="button"
         onClick={() => onDismiss(item.id)}
-        aria-label="Dismiss notification"
+        aria-label="إغلاق الإشعار"
         className="grid h-8 w-8 shrink-0 place-items-center text-muted transition-colors hover:text-ink"
       >
         <X size={16} />
@@ -84,7 +84,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
       <div
         role="status"
         aria-live="polite"
-        className="pointer-events-none fixed inset-x-3 bottom-3 z-[70] flex flex-col items-center gap-2 sm:inset-x-auto sm:right-6 sm:top-28 sm:bottom-auto sm:items-end"
+        className="pointer-events-none fixed inset-x-3 bottom-3 z-[70] flex flex-col items-center gap-2 sm:inset-x-auto sm:end-6 sm:top-28 sm:bottom-auto sm:items-end"
       >
         {items.map((item) => (
           <ToastCard key={item.id} item={item} onDismiss={dismiss} />

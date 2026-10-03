@@ -42,6 +42,10 @@ export interface CatalogProduct {
   media: ProductMedia[]
   colors: ProductColor[]
   createdAt: string
+  /** Times this product appears across all submitted customer requests. */
+  pickCount: number
+  /** Times a customer has liked (hearted) this product. */
+  likeCount: number
 }
 
 export interface CustomerProfile {

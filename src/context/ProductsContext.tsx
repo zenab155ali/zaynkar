@@ -45,7 +45,7 @@ interface RawProduct {
 
 const bySortOrder = <T extends { sort_order: number }>(a: T, b: T) => a.sort_order - b.sort_order
 
-function mapProduct(row: RawProduct): CatalogProduct {
+function mapProduct(row: RawProduct, pickCounts: Map<string, number>, likeCounts: Map<string, number>): CatalogProduct {
   return {
     id: row.id,
     code: row.code,
@@ -59,7 +59,15 @@ function mapProduct(row: RawProduct): CatalogProduct {
     createdAt: row.created_at,
     media: [...row.product_media].sort(bySortOrder).map((m) => ({ id: m.id, url: m.media_url, type: m.media_type, sortOrder: m.sort_order })),
     colors: [...row.product_colors].sort(bySortOrder).map((c) => ({ id: c.id, colorName: c.color_name, photoUrl: c.photo_url, sortOrder: c.sort_order })),
+    pickCount: pickCounts.get(row.id) ?? 0,
+    likeCount: likeCounts.get(row.id) ?? 0,
   }
+}
+
+const countBy = (rows: { product_id: string }[]): Map<string, number> => {
+  const map = new Map<string, number>()
+  for (const r of rows) map.set(r.product_id, (map.get(r.product_id) ?? 0) + 1)
+  return map
 }
 
 export function ProductsProvider({ children }: { children: ReactNode }) {
@@ -75,12 +83,14 @@ export function ProductsProvider({ children }: { children: ReactNode }) {
     }
     setLoading(true)
     setError(null)
-    const [catRes, prodRes] = await Promise.all([
+    const [catRes, prodRes, pickRes, likeRes] = await Promise.all([
       supabase.from('categories').select('id, name, sort_order').order('sort_order'),
       supabase
         .from('products')
         .select('*, categories(name), product_media(*), product_colors(*)')
         .order('created_at', { ascending: false }),
+      supabase.rpc('get_product_pick_counts'),
+      supabase.from('product_likes').select('product_id'),
     ])
 
     if (catRes.error || prodRes.error) {
@@ -89,8 +99,13 @@ export function ProductsProvider({ children }: { children: ReactNode }) {
       return
     }
 
+    const pickCounts = new Map<string, number>(
+      ((pickRes.data as { product_id: string; pick_count: number | string }[] | null) ?? []).map((r) => [r.product_id, Number(r.pick_count)]),
+    )
+    const likeCounts = countBy((likeRes.data as { product_id: string }[] | null) ?? [])
+
     setCategories((catRes.data ?? []).map((c) => ({ id: c.id, name: c.name, sortOrder: c.sort_order })))
-    setProducts(((prodRes.data as RawProduct[] | null) ?? []).map(mapProduct))
+    setProducts(((prodRes.data as RawProduct[] | null) ?? []).map((row) => mapProduct(row, pickCounts, likeCounts)))
     setLoading(false)
   }, [])
 

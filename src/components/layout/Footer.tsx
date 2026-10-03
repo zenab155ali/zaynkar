@@ -11,49 +11,15 @@ interface FooterLink {
   external?: boolean
 }
 
-const COLUMNS: { title: string; links: FooterLink[] }[] = [
-  {
-    title: 'Shop',
-    links: [
-      { label: 'Women', to: '/shop/women' },
-      { label: 'Modest', to: '/shop/modest' },
-      { label: 'Shoes', to: '/shop/shoes' },
-      { label: 'Bags', to: '/shop/bags' },
-      { label: 'Accessories', to: '/shop/accessories' },
-    ],
-  },
-  {
-    title: 'Help',
-    links: [
-      { label: 'Contact Us', to: '/info/contact' },
-      { label: 'Shipping', to: '/info/shipping' },
-      { label: 'Returns', to: '/info/returns' },
-      { label: 'Size Guide', to: '/info/size-guide' },
-      { label: 'FAQ', to: '/info/faq' },
-    ],
-  },
-  {
-    title: 'About ZAYNKAR',
-    links: [
-      { label: 'Our Story', to: '/info/our-story' },
-      { label: 'Our Sellers', to: '/info/our-sellers' },
-      { label: 'Careers', to: '/info/careers' },
-    ],
-  },
-  {
-    title: 'Follow us',
-    links: [
-      { label: 'Instagram', to: 'https://www.instagram.com/', external: true },
-      { label: 'TikTok', to: 'https://www.tiktok.com/', external: true },
-      { label: 'Pinterest', to: 'https://www.pinterest.com/', external: true },
-    ],
-  },
+const SOCIAL: FooterLink[] = [
+  { label: 'Instagram', to: 'https://www.instagram.com/', external: true },
+  { label: 'TikTok', to: 'https://www.tiktok.com/', external: true },
+  { label: 'Pinterest', to: 'https://www.pinterest.com/', external: true },
 ]
 
 const LEGAL: FooterLink[] = [
-  { label: 'Privacy Policy', to: '/info/privacy' },
-  { label: 'Terms & Conditions', to: '/info/terms' },
-  { label: 'Cookie Settings', to: '/info/cookies' },
+  { label: 'سياسة الخصوصية', to: '/info/privacy' },
+  { label: 'الشروط والأحكام', to: '/info/terms' },
 ]
 
 function Newsletter() {
@@ -61,18 +27,18 @@ function Newsletter() {
   const [email, setEmail] = useState('')
   const onSubmit = (e: FormEvent) => {
     e.preventDefault()
-    toast({ title: 'Thank you for subscribing', description: 'Demo only — no email was stored.' })
+    toast({ title: 'شكرًا لاشتراكك' })
     setEmail('')
   }
   return (
     <form onSubmit={onSubmit} className="w-full max-w-md">
       <label htmlFor="newsletter-email" className="text-sm text-muted">
-        Get early access to new sellers and drops.
+        اشتركي ليصلكِ كل جديد.
       </label>
       <div className="mt-3 flex">
-        <input id="newsletter-email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Your email address" autoComplete="email" className="field min-w-0 flex-1" />
-        <button type="submit" className="btn btn-primary -ml-px shrink-0 px-5">
-          Join
+        <input id="newsletter-email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="بريدكِ الإلكتروني" autoComplete="email" className="field min-w-0 flex-1" />
+        <button type="submit" className="btn btn-primary -ms-px shrink-0 px-5">
+          اشتراك
         </button>
       </div>
     </form>
@@ -84,47 +50,40 @@ export function Footer() {
   return (
     <footer className="mt-20 border-t border-line bg-sand/60">
       <div className="container-page py-12 sm:py-16">
-        <div className="flex flex-col gap-10 lg:flex-row lg:justify-between">
+        <div className="flex flex-col gap-10 lg:flex-row lg:items-start lg:justify-between">
           <div className="max-w-sm">
             <Logo className="!pl-0" />
-            <p className="mt-4 text-sm leading-relaxed text-muted">
-              A global fashion marketplace connecting independent stores and brands from around the world — starting with Turkey.
-            </p>
+            <p className="mt-4 text-sm leading-relaxed text-muted">فساتين أنيقة، مختارة لكِ.</p>
             <div className="mt-6">
               <Newsletter />
             </div>
           </div>
 
-          <div className="grid flex-1 grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-4 lg:max-w-3xl">
-            {COLUMNS.map((col) => (
-              <nav key={col.title} aria-label={col.title}>
-                <h2 className="eyebrow mb-4 !text-ink">{col.title}</h2>
-                <ul className="space-y-3 text-sm">
-                  {col.links.map((link) => (
-                    <li key={link.label}>
-                      {link.external ? (
-                        <a href={link.to} target="_blank" rel="noopener noreferrer" className="text-muted transition-colors hover:text-ink">
-                          {link.label}
-                          <span className="sr-only"> (opens in a new tab)</span>
-                        </a>
-                      ) : (
-                        <Link to={link.to} className="text-muted transition-colors hover:text-ink">
-                          {link.label}
-                        </Link>
-                      )}
-                    </li>
-                  ))}
-                </ul>
-              </nav>
-            ))}
-          </div>
+          <nav aria-label="تابعينا" className="lg:text-end">
+            <h2 className="eyebrow mb-4 !text-ink">تابعينا</h2>
+            <ul className="space-y-3 text-sm">
+              {SOCIAL.map((link) => (
+                <li key={link.label}>
+                  <a href={link.to} target="_blank" rel="noopener noreferrer" className="text-muted transition-colors hover:text-ink">
+                    {link.label}
+                    <span className="sr-only"> (يفتح في نافذة جديدة)</span>
+                  </a>
+                </li>
+              ))}
+              <li>
+                <Link to="/info/contact" className="text-muted transition-colors hover:text-ink">
+                  تواصلي معنا
+                </Link>
+              </li>
+            </ul>
+          </nav>
         </div>
 
         <div className="mt-14 flex flex-col gap-4 border-t border-line pt-6 text-xs text-muted md:flex-row md:items-center md:justify-between">
           <p>
-            © {new Date().getFullYear()} ZAYNKAR. Prototype — no real orders or payments are processed.
-            <span className="ml-3 whitespace-nowrap">
-              Currency: {CURRENCIES[currency].symbol.trim()} {currency}
+            © {new Date().getFullYear()} ZAYNKAR.
+            <span className="ms-3 whitespace-nowrap" dir="ltr">
+              {CURRENCIES[currency].symbol.trim()} {currency}
             </span>
           </p>
           <ul className="flex flex-wrap gap-x-6 gap-y-2">

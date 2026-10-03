@@ -1,6 +1,6 @@
 import { Fragment } from 'react'
 import { Link } from 'react-router-dom'
-import { ChevronRight } from 'lucide-react'
+import { ChevronLeft } from 'lucide-react'
 import type { Crumb } from '@/data/collections'
 
 export function Breadcrumbs({ items, className = '' }: { items: Crumb[]; className?: string }) {
@@ -24,7 +24,7 @@ export function Breadcrumbs({ items, className = '' }: { items: Crumb[]; classNa
               </li>
               {!last && (
                 <li aria-hidden="true" className="flex items-center">
-                  <ChevronRight size={12} />
+                  <ChevronLeft size={12} />
                 </li>
               )}
             </Fragment>

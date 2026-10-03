@@ -4,9 +4,6 @@ import { PromoBar } from '@/components/layout/PromoBar'
 import { Header } from '@/components/layout/Header'
 import { Footer } from '@/components/layout/Footer'
 import { MobileMenu } from '@/components/layout/MobileMenu'
-import { SearchOverlay } from '@/components/search/SearchOverlay'
-import { ImageSearchModal } from '@/components/search/ImageSearchModal'
-import { CompleteMyLookModal } from '@/components/search/CompleteMyLookModal'
 
 export function Layout() {
   const { pathname } = useLocation()
@@ -27,9 +24,6 @@ export function Layout() {
       </main>
       <Footer />
       <MobileMenu />
-      <SearchOverlay />
-      <ImageSearchModal />
-      <CompleteMyLookModal />
     </div>
   )
 }

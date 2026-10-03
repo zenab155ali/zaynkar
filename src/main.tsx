@@ -6,6 +6,7 @@ import { AuthProvider } from '@/context/AuthContext'
 import { CartProvider } from '@/context/CartContext'
 import { CurrencyProvider } from '@/context/CurrencyContext'
 import { FavoritesProvider } from '@/context/FavoritesContext'
+import { LikesProvider } from '@/context/LikesContext'
 import { ProductsProvider } from '@/context/ProductsContext'
 import { SelectionsProvider } from '@/context/SelectionsContext'
 import { ToastProvider } from '@/context/ToastContext'
@@ -19,15 +20,17 @@ createRoot(document.getElementById('root')!).render(
         <ToastProvider>
           <AuthProvider>
             <ProductsProvider>
-              <SelectionsProvider>
-                <FavoritesProvider>
-                  <CartProvider>
-                    <UIProvider>
-                      <App />
-                    </UIProvider>
-                  </CartProvider>
-                </FavoritesProvider>
-              </SelectionsProvider>
+              <LikesProvider>
+                <SelectionsProvider>
+                  <FavoritesProvider>
+                    <CartProvider>
+                      <UIProvider>
+                        <App />
+                      </UIProvider>
+                    </CartProvider>
+                  </FavoritesProvider>
+                </SelectionsProvider>
+              </LikesProvider>
             </ProductsProvider>
           </AuthProvider>
         </ToastProvider>

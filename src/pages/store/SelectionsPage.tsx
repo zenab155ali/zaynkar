@@ -12,7 +12,7 @@ import { supabase } from '@/lib/supabase'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 
 function SelectionsView() {
-  useDocumentTitle('My Selections')
+  useDocumentTitle('مختاراتي')
   const { lines, remove, setQuantity, clear } = useSelections()
   const { user } = useAuth()
   const { format } = useCurrency()
@@ -34,7 +34,7 @@ function SelectionsView() {
 
     const { data: request, error: reqError } = await supabase.from('requests').insert({ customer_id: user.id, note }).select('id').single()
     if (reqError || !request) {
-      setError(reqError?.message ?? 'Could not submit your list — please try again.')
+      setError(reqError?.message ?? 'تعذّر إرسال قائمتك — حاولي مرة أخرى.')
       setSubmitting(false)
       return
     }
@@ -71,10 +71,10 @@ function SelectionsView() {
   if (lines.length === 0) {
     return (
       <div className="container-page py-8">
-        <Breadcrumbs items={[{ label: 'Home', to: '/' }, { label: 'My Selections' }]} />
-        <EmptyState icon={<ShoppingBag size={26} strokeWidth={1.3} />} title="No selections yet" description="Pick a few dresses and come back here to send us your list.">
+        <Breadcrumbs items={[{ label: 'الرئيسية', to: '/' }, { label: 'مختاراتي' }]} />
+        <EmptyState icon={<ShoppingBag size={26} strokeWidth={1.3} />} title="لا توجد مختارات بعد" description="اختاري بعض الفساتين وعودي إلى هنا لإرسال قائمتكِ.">
           <Link to="/store" className="btn btn-primary">
-            Browse dresses
+            تصفحي الفساتين
           </Link>
         </EmptyState>
       </div>
@@ -83,22 +83,24 @@ function SelectionsView() {
 
   return (
     <div className="container-page py-8">
-      <Breadcrumbs items={[{ label: 'Home', to: '/' }, { label: 'My Selections' }]} />
-      <h1 className="display mt-4 text-4xl">My Selections</h1>
+      <Breadcrumbs items={[{ label: 'الرئيسية', to: '/' }, { label: 'مختاراتي' }]} />
+      <h1 className="display mt-4 text-4xl">مختاراتي</h1>
 
       <ul className="mt-6 divide-y divide-line border-y border-line">
         {lines.map((l) => (
           <li key={l.id} className="flex gap-4 py-5">
             <div className="min-w-0 flex-1">
-              <p className="font-mono text-xs text-muted">{l.product.code}</p>
+              <p className="font-mono text-xs text-muted" dir="ltr">
+                {l.product.code}
+              </p>
               <p className="text-sm font-medium">{l.product.name}</p>
               <p className="mt-0.5 text-xs text-muted">
-                {l.colorName} · Size {l.size}
+                {l.colorName} · المقاس {l.size}
               </p>
               <div className="mt-2 flex items-center gap-3">
                 <QuantityStepper compact value={l.quantity} onChange={(q) => setQuantity(l.id, q)} />
                 <button type="button" onClick={() => remove(l.id)} className="inline-flex items-center gap-1 text-xs text-muted hover:text-sale">
-                  <Trash2 size={13} /> Remove
+                  <Trash2 size={13} /> إزالة
                 </button>
               </div>
             </div>
@@ -108,13 +110,13 @@ function SelectionsView() {
       </ul>
 
       <p className="mt-4 flex justify-between text-base font-medium">
-        <span>Total</span>
+        <span>الإجمالي</span>
         <span>{format(total)}</span>
       </p>
 
       <div className="mt-6">
         <label htmlFor="note" className="mb-1.5 block text-xs font-medium tracking-wide text-muted">
-          Anything we should know? (optional)
+          هل هناك ما تودين إخبارنا به؟ (اختياري)
         </label>
         <textarea id="note" rows={3} value={note} onChange={(e) => setNote(e.target.value)} className="field !h-auto py-3" />
       </div>
@@ -126,9 +128,9 @@ function SelectionsView() {
       )}
 
       <button type="button" onClick={submit} disabled={submitting} className="btn btn-primary mt-6 !h-14 w-full">
-        {submitting ? 'Sending…' : user ? 'Submit my list' : 'Sign in to submit my list'}
+        {submitting ? 'جارٍ الإرسال…' : user ? 'إرسال قائمتي' : 'سجّلي الدخول لإرسال قائمتكِ'}
       </button>
-      <p className="mt-3 text-center text-xs text-muted">This sends your list to the store — no payment is taken here.</p>
+      <p className="mt-3 text-center text-xs text-muted">هذا يرسل قائمتكِ إلى المتجر — لا يتم أخذ أي دفعة هنا.</p>
     </div>
   )
 }
