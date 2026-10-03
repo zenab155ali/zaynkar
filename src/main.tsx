@@ -13,9 +13,14 @@ import { ToastProvider } from '@/context/ToastContext'
 import { UIProvider } from '@/context/UIContext'
 import '@/index.css'
 
+// React Router's basename must not end in a slash (it strips exactly `basename` as a
+// prefix) — this matters once the base is nested more than one level deep, e.g. the
+// archived "/zaynkar/versions/v4/" builds, where a trailing slash breaks route matching.
+const basename = import.meta.env.BASE_URL.replace(/\/$/, '') || '/'
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <BrowserRouter basename={import.meta.env.BASE_URL}>
+    <BrowserRouter basename={basename}>
       <CurrencyProvider>
         <ToastProvider>
           <AuthProvider>
