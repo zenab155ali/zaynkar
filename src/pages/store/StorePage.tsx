@@ -154,7 +154,7 @@ function StoreGrid() {
     <div className="container-page py-8">
       <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="eyebrow mb-2">المتجر الحقيقي</p>
+          <p className="eyebrow mb-2">اختاري إطلالتك ✨</p>
           <h1 className="display text-4xl sm:text-5xl">الفساتين</h1>
         </div>
         <form onSubmit={onSearchCode} className="flex w-full max-w-xs gap-2">

@@ -35,7 +35,7 @@ export function MobileMenu() {
 
         <div className="space-y-1 border-t border-line bg-sand/60 px-4 py-4 text-sm">
           <Link to={user ? '/my-requests' : '/signin'} onClick={close} className="flex items-center gap-3 py-2">
-            <Inbox size={18} strokeWidth={1.6} aria-hidden="true" /> {user ? 'طلباتي' : 'تسجيل الدخول / حساب جديد'}
+            <Inbox size={18} strokeWidth={1.6} aria-hidden="true" /> {user ? 'سلة مشترياتي' : 'تسجيل الدخول / حساب جديد'}
           </Link>
           <Link to="/liked" onClick={close} className="flex items-center gap-3 py-2">
             <Heart size={18} strokeWidth={1.6} aria-hidden="true" /> المفضلة

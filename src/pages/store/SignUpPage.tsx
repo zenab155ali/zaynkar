@@ -7,7 +7,7 @@ import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 
 export default function SignUpPage() {
   useDocumentTitle('إنشاء حساب')
-  const { user, signUpCustomer } = useAuth()
+  const { user, loading: authLoading, signUpCustomer } = useAuth()
   const navigate = useNavigate()
   const [fullName, setFullName] = useState('')
   const [phone, setPhone] = useState('')
@@ -17,6 +17,7 @@ export default function SignUpPage() {
   const [confirmNeeded, setConfirmNeeded] = useState(false)
   const [submitting, setSubmitting] = useState(false)
 
+  if (authLoading) return null
   if (user) return <Navigate to="/store" replace />
 
   const onSubmit = async (e: FormEvent) => {

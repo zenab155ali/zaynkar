@@ -7,7 +7,7 @@ import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 
 export default function SignInPage() {
   useDocumentTitle('تسجيل الدخول')
-  const { user, signInCustomer } = useAuth()
+  const { user, loading: authLoading, signInCustomer } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
   const [email, setEmail] = useState('')
@@ -15,9 +15,10 @@ export default function SignInPage() {
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
 
-  if (user) return <Navigate to="/store" replace />
-
   const redirectTo = (location.state as { from?: string } | null)?.from ?? '/store'
+
+  if (authLoading) return null
+  if (user) return <Navigate to={redirectTo} replace />
 
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault()

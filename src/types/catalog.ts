@@ -56,6 +56,20 @@ export interface CustomerProfile {
 
 export type RequestStatus = 'new' | 'seen' | 'fulfilled'
 
+/** Fulfilment stage, set by the admin so the customer can follow their order's journey. */
+export type RequestStage = 'products_selected' | 'confirmed' | 'shipped' | 'arrived_country' | 'at_delivery_company' | 'delivered'
+
+export const REQUEST_STAGES: RequestStage[] = ['products_selected', 'confirmed', 'shipped', 'arrived_country', 'at_delivery_company', 'delivered']
+
+export const REQUEST_STAGE_LABELS: Record<RequestStage, string> = {
+  products_selected: 'تم اختيار المنتجات',
+  confirmed: 'تم تأكيد الطلب',
+  shipped: 'تم الشحن',
+  arrived_country: 'وصل إلى بلدكِ',
+  at_delivery_company: 'وصل لشركة التوصيل',
+  delivered: 'تم التوصيل للمنزل',
+}
+
 export interface RequestItem {
   id: string
   productId: string | null
@@ -68,14 +82,28 @@ export interface RequestItem {
   quantity: number
 }
 
+export interface RequestMessage {
+  id: string
+  requestId: string
+  body: string
+  createdAt: string
+}
+
 export interface CustomerRequest {
   id: string
-  customerId: string
+  customerId: string | null
   status: RequestStatus
+  stage: RequestStage
   note: string
   createdAt: string
   items: RequestItem[]
-  /** Present only when loaded by an admin (joined from customer_profiles). */
+  messages: RequestMessage[]
+  /** Set only for guest orders (no customer account). */
+  guestFullName: string | null
+  guestCountry: string | null
+  guestPhone: string | null
+  guestInstagram: string | null
+  /** Present only when loaded by an admin (joined from customer_profiles) for a signed-in customer. */
   customer?: { fullName: string; phone: string }
 }
 

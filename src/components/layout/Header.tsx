@@ -46,7 +46,7 @@ export function Header() {
         <Logo />
 
         <div className="flex items-center justify-end">
-          <Link to={user ? '/my-requests' : '/signin'} aria-label={user ? 'طلباتي' : 'تسجيل الدخول'} className={iconButton}>
+          <Link to={user ? '/my-requests' : '/signin'} aria-label={user ? 'سلة مشترياتي' : 'تسجيل الدخول'} className={iconButton}>
             <User size={21} strokeWidth={1.6} />
           </Link>
           <Link to="/liked" aria-label={`المفضلة${likedIds.size ? `، ${likedIds.size} عناصر` : ''}`} className={iconButton}>
