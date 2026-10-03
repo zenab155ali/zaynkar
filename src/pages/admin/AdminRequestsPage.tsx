@@ -150,8 +150,8 @@ export default function AdminRequestsPage() {
                 <ul className="divide-y divide-line">
                   {r.items.map((item) => (
                     <li key={item.id} className="flex items-center gap-4 px-5 py-3">
-                      <div className="relative h-20 w-[3.75rem] shrink-0 overflow-hidden bg-sand">
-                        {item.photoUrl && <SmartImage image={{ url: item.photoUrl }} alt="" widths={[120, 200]} sizes="60px" />}
+                      <div className="relative h-28 w-24 shrink-0 overflow-hidden bg-sand">
+                        {item.photoUrl && <SmartImage image={{ url: item.photoUrl }} alt="" widths={[160, 260]} sizes="96px" />}
                       </div>
                       <div className="min-w-0 flex-1 text-sm">
                         {item.productId ? (

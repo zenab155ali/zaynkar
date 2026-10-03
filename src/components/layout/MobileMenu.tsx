@@ -1,5 +1,6 @@
+import { useNavigate } from 'react-router-dom'
 import { Link } from 'react-router-dom'
-import { Heart, Inbox, ShoppingBag, X } from 'lucide-react'
+import { Heart, Inbox, LogOut, ShoppingBag, X } from 'lucide-react'
 import { Dialog } from '@/components/ui/Dialog'
 import { Logo } from '@/components/ui/Logo'
 import { useAuth } from '@/context/AuthContext'
@@ -7,8 +8,14 @@ import { useUI } from '@/context/UIContext'
 
 export function MobileMenu() {
   const { menuOpen, setMenuOpen } = useUI()
-  const { user } = useAuth()
+  const { user, signOut } = useAuth()
+  const navigate = useNavigate()
   const close = () => setMenuOpen(false)
+  const handleSignOut = async () => {
+    close()
+    await signOut()
+    navigate('/')
+  }
 
   return (
     <Dialog open={menuOpen} onClose={close} label="القائمة" variant="right">
@@ -36,6 +43,11 @@ export function MobileMenu() {
           <Link to="/selections" onClick={close} className="flex items-center gap-3 py-2">
             <ShoppingBag size={18} strokeWidth={1.6} aria-hidden="true" /> مختاراتي
           </Link>
+          {user && (
+            <button type="button" onClick={handleSignOut} className="flex w-full items-center gap-3 py-2 text-start text-sale">
+              <LogOut size={18} strokeWidth={1.6} aria-hidden="true" /> تسجيل الخروج
+            </button>
+          )}
         </div>
       </div>
     </Dialog>

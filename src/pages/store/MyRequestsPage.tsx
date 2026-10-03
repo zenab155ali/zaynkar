@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
-import { Link, Navigate } from 'react-router-dom'
-import { Inbox } from 'lucide-react'
+import { Link, Navigate, useNavigate } from 'react-router-dom'
+import { Inbox, LogOut } from 'lucide-react'
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { RequireSupabase } from '@/components/ui/RequireSupabase'
@@ -40,10 +40,15 @@ interface RawRequest {
 
 function MyRequestsView() {
   useDocumentTitle('طلباتي')
-  const { user } = useAuth()
+  const { user, signOut } = useAuth()
   const { format } = useCurrency()
+  const navigate = useNavigate()
   const [loading, setLoading] = useState(true)
   const [requests, setRequests] = useState<CustomerRequest[]>([])
+  const handleSignOut = async () => {
+    await signOut()
+    navigate('/')
+  }
 
   useEffect(() => {
     if (!supabase || !user) return
@@ -83,7 +88,12 @@ function MyRequestsView() {
   return (
     <div className="container-page py-8">
       <Breadcrumbs items={[{ label: 'الرئيسية', to: '/' }, { label: 'طلباتي' }]} />
-      <h1 className="display mt-4 text-4xl">طلباتي</h1>
+      <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+        <h1 className="display text-4xl">طلباتي</h1>
+        <button type="button" onClick={handleSignOut} className="flex items-center gap-2 text-sm text-muted hover:text-sale">
+          <LogOut size={16} strokeWidth={1.6} aria-hidden="true" /> تسجيل الخروج
+        </button>
+      </div>
 
       {loading ? (
         <p className="mt-6 text-sm text-muted">جارٍ التحميل…</p>
@@ -107,8 +117,8 @@ function MyRequestsView() {
               <ul className="divide-y divide-line">
                 {r.items.map((item) => (
                   <li key={item.id} className="flex items-center gap-4 px-5 py-3">
-                    <div className="relative h-20 w-[3.75rem] shrink-0 overflow-hidden bg-sand">
-                      {item.photoUrl && <SmartImage image={{ url: item.photoUrl }} alt="" widths={[120, 200]} sizes="60px" />}
+                    <div className="relative h-28 w-24 shrink-0 overflow-hidden bg-sand">
+                      {item.photoUrl && <SmartImage image={{ url: item.photoUrl }} alt="" widths={[160, 260]} sizes="96px" />}
                     </div>
                     <div className="min-w-0 flex-1 text-sm">
                       <p className="font-medium">{item.productName}</p>

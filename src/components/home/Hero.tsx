@@ -20,16 +20,14 @@ export function Hero() {
           />
         </div>
 
-        <div className="order-2 flex flex-col justify-center px-4 py-12 sm:px-8 sm:py-16 lg:order-1 lg:col-span-5 lg:px-12 lg:py-20 xl:pe-14">
-          <p className="eyebrow mb-5" dir="ltr">
-            ZAYNKAR
-          </p>
+        <div className="order-2 flex flex-col justify-center px-4 py-12 sm:px-8 sm:py-16 lg:order-1 lg:col-span-5 lg:px-12 lg:py-20 xl:pe-14" dir="ltr">
+          <p className="eyebrow mb-5">A GLOBAL FASHION MARKETPLACE</p>
           <h1 id="hero-heading" className="display text-[3.25rem] sm:text-7xl xl:text-[5.5rem]">
-            أسلوبكِ.
+            Your Style.
             <br />
-            <em className="font-normal italic">عالمكِ.</em>
+            <em className="font-normal italic">Your World.</em>
           </h1>
-          <p className="mt-6 max-w-md text-base leading-relaxed text-muted sm:text-lg">فساتين أنيقة، مختارة لكِ.</p>
+          <p className="mt-6 max-w-md text-base leading-relaxed text-muted sm:text-lg">Discover fashion from brands around the world.</p>
 
           <div className="mt-9">
             <Link to="/store" className="btn btn-primary">

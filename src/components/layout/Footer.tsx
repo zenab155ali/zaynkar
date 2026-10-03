@@ -11,11 +11,7 @@ interface FooterLink {
   external?: boolean
 }
 
-const SOCIAL: FooterLink[] = [
-  { label: 'Instagram', to: 'https://www.instagram.com/', external: true },
-  { label: 'TikTok', to: 'https://www.tiktok.com/', external: true },
-  { label: 'Pinterest', to: 'https://www.pinterest.com/', external: true },
-]
+const SOCIAL: FooterLink[] = [{ label: 'Instagram', to: 'https://www.instagram.com/zaynkar_fashion', external: true }]
 
 const LEGAL: FooterLink[] = [
   { label: 'سياسة الخصوصية', to: '/info/privacy' },
