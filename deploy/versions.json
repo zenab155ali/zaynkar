@@ -1,6 +1,6 @@
 {
   "repo": "zenab155ali/zaynkar",
-  "latestVersion": 11,
+  "latestVersion": 12,
   "versions": [
     { "version": 1, "date": "2026-10-02", "commit": "cd85591", "note": "Initial deployment" },
     { "version": 2, "date": "2026-10-03", "commit": "3ecb77e", "note": "Real admin + customer system (Supabase)" },
@@ -12,6 +12,7 @@
     { "version": 8, "date": "2026-10-03", "commit": "4a6aee1", "note": "Fix: Shop Dresses link hidden on mobile" },
     { "version": 9, "date": "2026-10-04", "commit": "e325cb4", "note": "Prominent back-to-shopping nav, hero wording" },
     { "version": 10, "date": "2026-10-04", "commit": "63bcebc", "note": "Order numbers, category-agnostic nav, cart rename" },
-    { "version": 11, "date": "2026-10-04", "commit": "63837d4", "note": "Rephrase guest-checkout note" }
+    { "version": 11, "date": "2026-10-04", "commit": "63837d4", "note": "Rephrase guest-checkout note" },
+    { "version": 12, "date": "2026-10-05", "commit": "384e0dd", "note": "Fix: cropped/zoomed product photos" }
   ]
 }
