@@ -45,12 +45,33 @@ export function MediaUploadField({ value, onChange, label, allowVideo = true, cl
 
   const accept = allowVideo ? 'image/jpeg,image/png,image/webp,video/mp4,video/webm,video/quicktime' : 'image/jpeg,image/png,image/webp'
 
-  const onPaste = (e: ClipboardEvent) => {
+  const onPaste = async (e: ClipboardEvent) => {
     const item = [...e.clipboardData.items].find((i) => i.type.startsWith('image/') || (allowVideo && i.type.startsWith('video/')))
     const file = item?.getAsFile()
     if (file) {
       e.preventDefault()
       onPick(file)
+      return
+    }
+
+    // Word often hands the browser an HTML fragment instead of a plain image — if it
+    // contains an inline (base64) picture, pull that out as a fallback.
+    const html = e.clipboardData.getData('text/html')
+    const match = html.match(/<img[^>]+src=["'](data:image\/[a-zA-Z+]+;base64,[^"']+)["']/i)
+    if (match) {
+      e.preventDefault()
+      try {
+        const blob = await (await fetch(match[1])).blob()
+        onPick(new File([blob], `pasted.${blob.type.split('/')[1] || 'png'}`, { type: blob.type }))
+      } catch {
+        setError('Couldn\'t read that image. In Word, right-click the photo → "Save as Picture", then use Upload instead.')
+      }
+      return
+    }
+
+    if (e.clipboardData.items.length > 0) {
+      e.preventDefault()
+      setError('Couldn\'t read an image from what you copied. In Word, right-click the photo → "Save as Picture", then use Upload to select that file.')
     }
   }
 
