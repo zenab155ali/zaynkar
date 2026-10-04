@@ -37,6 +37,8 @@ interface RawProduct {
   price: number
   sizes: string[]
   is_active: boolean
+  cover_focal_x: number
+  cover_focal_y: number
   created_at: string
   categories: { name: string } | null
   product_media: RawMedia[]
@@ -56,6 +58,8 @@ function mapProduct(row: RawProduct, pickCounts: Map<string, number>, likeCounts
     price: Number(row.price),
     sizes: row.sizes ?? [],
     isActive: row.is_active,
+    coverFocalX: Number(row.cover_focal_x),
+    coverFocalY: Number(row.cover_focal_y),
     createdAt: row.created_at,
     media: [...row.product_media].sort(bySortOrder).map((m) => ({ id: m.id, url: m.media_url, type: m.media_type, sortOrder: m.sort_order })),
     colors: [...row.product_colors].sort(bySortOrder).map((c) => ({ id: c.id, colorName: c.color_name, photoUrl: c.photo_url, sortOrder: c.sort_order })),

@@ -41,6 +41,9 @@ export interface CatalogProduct {
   /** General photos and/or videos — as many as the admin likes, shown by default and as the fallback for colors with no photo of their own. */
   media: ProductMedia[]
   colors: ProductColor[]
+  /** Where to center the cover photo crop in the product grid, as a percentage (50/50 = center). */
+  coverFocalX: number
+  coverFocalY: number
   createdAt: string
   /** Times this product appears across all submitted customer requests. */
   pickCount: number

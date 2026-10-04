@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import type { ProductImage } from '@/types'
 import { imageSrcSet, imageUrl } from '@/utils/images'
 
@@ -11,6 +11,7 @@ interface SmartImageProps {
   sizes?: string
   className?: string
   priority?: boolean
+  style?: CSSProperties
 }
 
 const DEFAULT_WIDTHS = [320, 480, 640, 800, 1080]
@@ -25,7 +26,7 @@ export function SmartImage(props: SmartImageProps) {
   return <SmartImageInner key={imageUrl(image, widths[0], ratio)} {...props} />
 }
 
-function SmartImageInner({ image, alt, ratio = 3 / 4, widths = DEFAULT_WIDTHS, sizes = '100vw', className = '', priority = false }: SmartImageProps) {
+function SmartImageInner({ image, alt, ratio = 3 / 4, widths = DEFAULT_WIDTHS, sizes = '100vw', className = '', priority = false, style }: SmartImageProps) {
   const [status, setStatus] = useState<'loading' | 'loaded' | 'error'>('loading')
   const ref = useRef<HTMLImageElement>(null)
 
@@ -54,6 +55,7 @@ function SmartImageInner({ image, alt, ratio = 3 / 4, widths = DEFAULT_WIDTHS, s
       decoding="async"
       onLoad={() => setStatus('loaded')}
       onError={() => setStatus('error')}
+      style={style}
       className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-500 ${status === 'loaded' ? 'opacity-100' : 'opacity-0'} ${className}`}
     />
   )

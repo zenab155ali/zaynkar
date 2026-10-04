@@ -4,8 +4,8 @@ import { Search, Shirt, SlidersHorizontal, X } from 'lucide-react'
 import { Dialog } from '@/components/ui/Dialog'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { RequireSupabase } from '@/components/ui/RequireSupabase'
-import { SmartImage } from '@/components/ui/SmartImage'
 import { LikeButton } from '@/components/store/LikeButton'
+import { ProductCardMedia } from '@/components/store/ProductCardMedia'
 import { useCurrency } from '@/context/CurrencyContext'
 import { useProducts } from '@/context/ProductsContext'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
@@ -243,13 +243,10 @@ function StoreGrid() {
             ) : (
               <div className="grid grid-cols-2 gap-x-3 gap-y-8 sm:grid-cols-3">
                 {filtered.map((p) => {
-                  const cover = p.media.find((m) => m.type === 'image') ?? p.media[0]
                   return (
                     <article key={p.id} className="group relative">
                       <Link to={`/store/${p.code}`} className="block">
-                        <div className="relative aspect-[3/4] overflow-hidden bg-sand">
-                          {cover && cover.type === 'image' && <SmartImage image={{ url: cover.url }} alt="" className="transition-transform duration-500 group-hover:scale-[1.03]" />}
-                        </div>
+                        <ProductCardMedia product={p} />
                       </Link>
                       <LikeButton productId={p.id} productName={p.name} className="absolute end-2 top-2" />
                       <Link to={`/store/${p.code}`} className="mt-3 block">

@@ -1,6 +1,7 @@
 import { useMemo, useState, type FormEvent } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { ArrowLeft, Plus, Trash2 } from 'lucide-react'
+import { CoverFocalPicker } from '@/components/admin/CoverFocalPicker'
 import { MediaUploadField } from '@/components/admin/MediaUploadField'
 import { TagInput } from '@/components/admin/TagInput'
 import { TextField } from '@/components/ui/TextField'
@@ -36,6 +37,8 @@ export default function AdminProductFormPage() {
   const [sizes, setSizes] = useState<string[]>(existing?.sizes ?? [])
   const [isActive, setIsActive] = useState(existing?.isActive ?? true)
   const [media, setMedia] = useState<MediaRow[]>(existing?.media.map((m) => ({ url: m.url, type: m.type })) ?? [])
+  const [coverFocalX, setCoverFocalX] = useState(existing?.coverFocalX ?? 50)
+  const [coverFocalY, setCoverFocalY] = useState(existing?.coverFocalY ?? 50)
   const [colors, setColors] = useState<ColorRow[]>(existing?.colors.map((c) => ({ colorName: c.colorName, photoUrl: c.photoUrl })) ?? [{ colorName: '', photoUrl: null }])
 
   const [error, setError] = useState<string | null>(null)
@@ -78,6 +81,8 @@ export default function AdminProductFormPage() {
       price: Number(price),
       sizes,
       is_active: isActive,
+      cover_focal_x: coverFocalX,
+      cover_focal_y: coverFocalY,
     }
 
     let productRowId = existing?.id ?? null
@@ -193,6 +198,17 @@ export default function AdminProductFormPage() {
               />
             ))}
             <MediaUploadField value={null} onChange={(next) => next && setMedia((prev) => [...prev, next])} />
+          </div>
+          <div className="mt-4">
+            <CoverFocalPicker
+              imageUrl={media.find((m) => m.type === 'image' && m.url)?.url ?? null}
+              x={coverFocalX}
+              y={coverFocalY}
+              onChange={(x, y) => {
+                setCoverFocalX(x)
+                setCoverFocalY(y)
+              }}
+            />
           </div>
         </div>
 
