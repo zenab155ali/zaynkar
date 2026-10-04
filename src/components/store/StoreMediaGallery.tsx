@@ -24,9 +24,9 @@ export function StoreMediaGallery({ media, name }: StoreMediaGalleryProps) {
     <div className="flex flex-col gap-3 lg:flex-row-reverse lg:gap-4">
       <div className="relative aspect-[3/4] flex-1 overflow-hidden bg-sand">
         {current.type === 'video' ? (
-          <video src={current.url} className="h-full w-full object-cover" controls playsInline />
+          <video src={current.url} className="h-full w-full object-contain" controls playsInline />
         ) : (
-          <img src={current.url} alt={`${name} — view ${active + 1} of ${media.length}`} className="h-full w-full object-cover" />
+          <img src={current.url} alt={`${name} — view ${active + 1} of ${media.length}`} className="h-full w-full object-contain" />
         )}
         {media.length > 1 && (
           <>

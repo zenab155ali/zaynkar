@@ -64,9 +64,9 @@ export function MediaUploadField({ value, onChange, label, allowVideo = true, cl
         {value ? (
           <>
             {value.type === 'video' ? (
-              <video src={value.url} className="absolute inset-0 h-full w-full object-cover" muted playsInline controls />
+              <video src={value.url} className="absolute inset-0 h-full w-full object-contain" muted playsInline controls />
             ) : (
-              <img src={value.url} alt="" className="absolute inset-0 h-full w-full object-cover" />
+              <img src={value.url} alt="" className="absolute inset-0 h-full w-full object-contain" />
             )}
             {value.type === 'video' && <span className="pointer-events-none absolute left-1 top-1 bg-ink/80 px-1.5 py-0.5 text-[0.5625rem] font-medium tracking-wide text-ivory">VIDEO</span>}
             <button
