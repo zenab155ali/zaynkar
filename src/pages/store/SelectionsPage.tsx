@@ -34,7 +34,7 @@ function SelectionsView() {
     if (!supabase || lines.length === 0) return
     if (!user && !asGuest) return
     if (asGuest && !user && !guestDetailsValid) {
-      setError('الاسم الكامل والبلد ورقم الهاتف إلزامية حتى نقدر نتواصل معكِ.')
+      setError('الاسم الكامل والبلد ورقم الهاتف إلزامية كي نستطيع التواصل معكِ.')
       return
     }
     setSubmitting(true)
@@ -185,7 +185,7 @@ function SelectionsView() {
             </div>
           ) : (
             <div className="space-y-3">
-              <p className="text-sm font-medium">بياناتكِ (إلزامية حتى نقدر نتواصل معكِ ونأكّد الطلب)</p>
+              <p className="text-sm font-medium">بياناتكِ (إلزامية كي نستطيع التواصل معكِ ونأكّد الطلب)</p>
               <div>
                 <label htmlFor="guest-name" className="mb-1 block text-xs text-muted">
                   الاسم الكامل *
