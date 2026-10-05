@@ -1,6 +1,6 @@
 {
   "repo": "zenab155ali/zaynkar",
-  "latestVersion": 14,
+  "latestVersion": 15,
   "versions": [
     { "version": 1, "date": "2026-10-02", "commit": "cd85591", "note": "Initial deployment" },
     { "version": 2, "date": "2026-10-03", "commit": "3ecb77e", "note": "Real admin + customer system (Supabase)" },
@@ -15,6 +15,7 @@
     { "version": 11, "date": "2026-10-04", "commit": "63837d4", "note": "Rephrase guest-checkout note" },
     { "version": 12, "date": "2026-10-05", "commit": "384e0dd", "note": "Fix: cropped/zoomed product photos" },
     { "version": 13, "date": "2026-10-05", "commit": "6ea8ecf", "note": "Admin cover-photo crop control, swipeable color grid" },
-    { "version": 14, "date": "2026-10-05", "commit": "26760e3", "note": "Handle Word-copied photos in admin paste field" }
+    { "version": 14, "date": "2026-10-05", "commit": "26760e3", "note": "Handle Word-copied photos in admin paste field" },
+    { "version": 15, "date": "2026-10-05", "commit": "8f58d97", "note": "Size ranges, bulk color upload, colors preview popup" }
   ]
 }
