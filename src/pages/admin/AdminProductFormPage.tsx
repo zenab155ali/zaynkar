@@ -1,12 +1,13 @@
-import { useMemo, useState, type FormEvent } from 'react'
+import { useMemo, useRef, useState, type FormEvent } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import { ArrowLeft, Plus, Trash2 } from 'lucide-react'
+import { ArrowLeft, Loader2, Plus, Trash2, Upload } from 'lucide-react'
 import { CoverFocalPicker } from '@/components/admin/CoverFocalPicker'
 import { MediaUploadField } from '@/components/admin/MediaUploadField'
 import { TagInput } from '@/components/admin/TagInput'
 import { TextField } from '@/components/ui/TextField'
 import { useProducts } from '@/context/ProductsContext'
 import { supabase } from '@/lib/supabase'
+import { uploadProductMedia, validateMediaFile } from '@/lib/uploadProductMedia'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import type { MediaType } from '@/types/catalog'
 
@@ -24,7 +25,7 @@ export default function AdminProductFormPage() {
   const { productId } = useParams()
   const isEditing = Boolean(productId && productId !== 'new')
   const navigate = useNavigate()
-  const { loading: catalogLoading, categories, getById, refresh } = useProducts()
+  const { loading: catalogLoading, categories, products, getById, refresh } = useProducts()
   const existing = isEditing ? getById(productId as string) : undefined
   useDocumentTitle(isEditing ? `Edit ${existing?.name ?? 'product'}` : 'Add new product')
 
@@ -40,9 +41,40 @@ export default function AdminProductFormPage() {
   const [coverFocalX, setCoverFocalX] = useState(existing?.coverFocalX ?? 50)
   const [coverFocalY, setCoverFocalY] = useState(existing?.coverFocalY ?? 50)
   const [colors, setColors] = useState<ColorRow[]>(existing?.colors.map((c) => ({ colorName: c.colorName, photoUrl: c.photoUrl })) ?? [{ colorName: '', photoUrl: null }])
+  const [bulkUploading, setBulkUploading] = useState(false)
+  const bulkInputRef = useRef<HTMLInputElement>(null)
 
   const [error, setError] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
+
+  const knownColorNames = useMemo(() => {
+    const set = new Set<string>()
+    for (const p of products) for (const c of p.colors) if (c.colorName.trim()) set.add(c.colorName.trim())
+    return [...set].sort()
+  }, [products])
+
+  const onBulkColorFiles = async (files: FileList | null) => {
+    if (!files || files.length === 0) return
+    setBulkUploading(true)
+    const uploaded: ColorRow[] = []
+    for (const file of Array.from(files)) {
+      if (validateMediaFile(file, false)) continue
+      try {
+        const result = await uploadProductMedia(file)
+        uploaded.push({ colorName: '', photoUrl: result.url })
+      } catch {
+        // skip a file that failed to upload; the rest still proceed
+      }
+    }
+    if (uploaded.length) {
+      setColors((prev) => {
+        const base = prev.length === 1 && !prev[0].colorName.trim() && !prev[0].photoUrl ? [] : prev
+        return [...base, ...uploaded]
+      })
+    }
+    setBulkUploading(false)
+    if (bulkInputRef.current) bulkInputRef.current.value = ''
+  }
 
   const effectiveCategoryId = categoryId || categories[0]?.id || ''
 
@@ -184,11 +216,20 @@ export default function AdminProductFormPage() {
 
         <TextField label="Price (₪)" type="number" min="0" step="0.01" required value={price} onChange={(e) => setPrice(e.target.value)} className="max-w-xs" />
 
-        <TagInput label="Sizes" values={sizes} onChange={setSizes} placeholder="Type a size and press Enter (e.g. S, M, 40…)" hint="Press Enter after each size." />
+        <TagInput
+          label="Sizes"
+          values={sizes}
+          onChange={setSizes}
+          placeholder="Type a size and press Enter (e.g. S, M, 40…)"
+          hint='Press Enter after each size. Tip: type a range like "36-44" to add 36, 38, 40, 42, 44 at once.'
+        />
 
         <div>
           <p className="mb-2 text-xs font-medium tracking-wide text-muted">Photos &amp; videos</p>
-          <p className="mb-3 text-xs text-muted">Add as many as you like — shown by default, and for any color below with no photo of its own.</p>
+          <p className="mb-3 text-xs text-muted">
+            Optional — only for general/model shots not tied to one color. You don't need to duplicate a color's photo here: any photo you add for a
+            color below already shows up on the storefront automatically.
+          </p>
           <div className="flex flex-wrap gap-3">
             {media.map((m, i) => (
               <MediaUploadField
@@ -201,7 +242,7 @@ export default function AdminProductFormPage() {
           </div>
           <div className="mt-4">
             <CoverFocalPicker
-              imageUrl={media.find((m) => m.type === 'image' && m.url)?.url ?? null}
+              imageUrl={media.find((m) => m.type === 'image' && m.url)?.url ?? colors.find((c) => c.photoUrl)?.photoUrl ?? null}
               x={coverFocalX}
               y={coverFocalY}
               onChange={(x, y) => {
@@ -213,13 +254,39 @@ export default function AdminProductFormPage() {
         </div>
 
         <div>
-          <div className="mb-2 flex items-center justify-between">
+          <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
             <p className="text-xs font-medium tracking-wide text-muted">Colors available</p>
-            <button type="button" onClick={() => setColors((prev) => [...prev, { colorName: '', photoUrl: null }])} className="inline-flex items-center gap-1 text-xs underline underline-offset-2">
-              <Plus size={13} /> Add color
-            </button>
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => bulkInputRef.current?.click()}
+                disabled={bulkUploading}
+                className="inline-flex items-center gap-1 text-xs underline underline-offset-2 disabled:opacity-50"
+              >
+                {bulkUploading ? <Loader2 size={13} className="animate-spin" /> : <Upload size={13} />} Upload multiple photos at once
+              </button>
+              <button type="button" onClick={() => setColors((prev) => [...prev, { colorName: '', photoUrl: null }])} className="inline-flex items-center gap-1 text-xs underline underline-offset-2">
+                <Plus size={13} /> Add color
+              </button>
+            </div>
           </div>
-          <p className="mb-3 text-xs text-muted">For each color: upload a photo of the item in that color, or just type the color name with no photo.</p>
+          <p className="mb-3 text-xs text-muted">
+            For each color: upload a photo of the item in that color, or just type the color name with no photo. Tip: use "Upload multiple photos at
+            once" to add several colors' photos in one go, then just type each color's name below.
+          </p>
+          <datalist id="known-color-names">
+            {knownColorNames.map((name) => (
+              <option key={name} value={name} />
+            ))}
+          </datalist>
+          <input
+            ref={bulkInputRef}
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            multiple
+            className="sr-only"
+            onChange={(e) => onBulkColorFiles(e.target.files)}
+          />
           <div className="space-y-3">
             {colors.map((row, i) => (
               <div key={i} className="flex items-start gap-3 border border-line bg-white p-3">
@@ -232,6 +299,7 @@ export default function AdminProductFormPage() {
                   <TextField
                     label={`Color name ${i + 1}`}
                     placeholder="e.g. Black, Navy, Rose Gold…"
+                    list="known-color-names"
                     value={row.colorName}
                     onChange={(e) => setColors((prev) => prev.map((c, idx) => (idx === i ? { ...c, colorName: e.target.value } : c)))}
                   />

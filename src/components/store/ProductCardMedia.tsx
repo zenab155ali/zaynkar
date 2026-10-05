@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react'
-import { ChevronLeft, ChevronRight, Layers } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Layers, X } from 'lucide-react'
+import { Dialog } from '@/components/ui/Dialog'
 import type { CatalogProduct } from '@/types/catalog'
 
 /** Cover photo first, then each color's own photo (deduplicated) — lets customers swipe through colors right from the grid. */
@@ -26,6 +27,7 @@ const SWIPE_THRESHOLD = 40
 export function ProductCardMedia({ product }: { product: CatalogProduct }) {
   const images = galleryImages(product)
   const [index, setIndex] = useState(0)
+  const [colorsOpen, setColorsOpen] = useState(false)
   const touchStartX = useRef<number | null>(null)
   const swiped = useRef(false)
 
@@ -69,10 +71,61 @@ export function ProductCardMedia({ product }: { product: CatalogProduct }) {
       />
 
       {product.colors.length > 1 && (
-        <span className="absolute start-2 top-2 flex items-center gap-1 rounded-full bg-ivory/90 px-2 py-1 text-[0.625rem] font-medium text-ink shadow-sm">
+        <button
+          type="button"
+          onClick={(e) => {
+            e.preventDefault()
+            e.stopPropagation()
+            setColorsOpen(true)
+          }}
+          aria-label={`عرض كل الألوان (${product.colors.length})`}
+          className="absolute start-2 top-2 flex items-center gap-1 rounded-full bg-ivory/90 px-2 py-1 text-[0.625rem] font-medium text-ink shadow-sm transition-colors hover:bg-ivory"
+        >
           <Layers size={11} aria-hidden="true" /> {product.colors.length}
-        </span>
+        </button>
       )}
+
+      <Dialog open={colorsOpen} onClose={() => setColorsOpen(false)} label={`ألوان ${product.name}`} variant="center">
+        <div className="flex h-14 items-center justify-between border-b border-line px-4">
+          <h2 className="text-sm font-medium">{product.name} — الألوان المتوفرة</h2>
+          <button
+            type="button"
+            onClick={(e) => {
+              e.preventDefault()
+              e.stopPropagation()
+              setColorsOpen(false)
+            }}
+            aria-label="إغلاق"
+            className="-me-2 grid h-10 w-10 place-items-center hover:bg-sand"
+          >
+            <X size={18} />
+          </button>
+        </div>
+        <div className="grid grid-cols-2 gap-3 p-4 sm:grid-cols-3">
+          {product.colors.map((c) => {
+            const photo = c.photoUrl ?? images[0]
+            return (
+              <button
+                key={c.id}
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault()
+                  e.stopPropagation()
+                  const i = photo ? images.indexOf(photo) : -1
+                  if (i >= 0) setIndex(i)
+                  setColorsOpen(false)
+                }}
+                className="group text-start"
+              >
+                <div className="relative aspect-[3/4] overflow-hidden bg-sand">
+                  {photo && <img src={photo} alt={c.colorName} className="absolute inset-0 h-full w-full object-cover transition-transform group-hover:scale-[1.03]" />}
+                </div>
+                <p className="mt-1.5 text-xs">{c.colorName}</p>
+              </button>
+            )
+          })}
+        </div>
+      </Dialog>
 
       {images.length > 1 && (
         <>

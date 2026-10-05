@@ -17,7 +17,26 @@ export function TagInput({ label, values, onChange, placeholder, hint }: TagInpu
 
   const commit = () => {
     const v = draft.trim()
-    if (v && !values.some((existing) => existing.toLowerCase() === v.toLowerCase())) onChange([...values, v])
+    if (!v) return
+
+    // A numeric range like "36-44" expands to 36, 38, 40, 42, 44 — standard dress-size steps.
+    const range = v.match(/^(\d+)\s*-\s*(\d+)$/)
+    if (range) {
+      const start = Number(range[1])
+      const end = Number(range[2])
+      if (start <= end) {
+        const next = [...values]
+        for (let n = start; n <= end; n += 2) {
+          const s = String(n)
+          if (!next.some((existing) => existing.toLowerCase() === s.toLowerCase())) next.push(s)
+        }
+        onChange(next)
+        setDraft('')
+        return
+      }
+    }
+
+    if (!values.some((existing) => existing.toLowerCase() === v.toLowerCase())) onChange([...values, v])
     setDraft('')
   }
 
