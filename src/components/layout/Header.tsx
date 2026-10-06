@@ -1,4 +1,4 @@
-import { Link, NavLink, useLocation } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { Heart, Menu, ShoppingBag, User } from 'lucide-react'
 import { Logo } from '@/components/ui/Logo'
 import { useAuth } from '@/context/AuthContext'
@@ -34,21 +34,24 @@ export function Header() {
             <Menu size={22} strokeWidth={1.6} />
           </button>
           <nav aria-label="الرئيسية" className="flex items-center">
-            <NavLink
-              to="/store"
+            <Link
+              to={onStoreListing ? '/' : '/store'}
               className={`flex h-8 items-center whitespace-nowrap px-3 text-[0.68rem] font-medium uppercase tracking-[0.1em] transition-colors sm:h-9 sm:px-4 sm:text-[0.75rem] sm:tracking-[0.14em] ${
                 onStoreListing ? 'bg-ink text-ivory' : 'bg-mocha text-ivory hover:bg-ink'
               }`}
             >
               {onStoreListing ? (
-                <span>تسوقي</span>
+                <>
+                  <span className="sm:hidden">الرئيسية</span>
+                  <span className="hidden sm:inline">الرجوع للصفحة الرئيسية</span>
+                </>
               ) : (
                 <>
                   <span className="sm:hidden">رجوع للتسوق</span>
                   <span className="hidden sm:inline">الرجوع لصفحة التسوق</span>
                 </>
               )}
-            </NavLink>
+            </Link>
           </nav>
         </div>
 

@@ -8,8 +8,8 @@ export default function HomePage() {
   return (
     <>
       <LiveShopBanner />
-      <Hero />
       <CategoryTiles />
+      <Hero />
     </>
   )
 }
