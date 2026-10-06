@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { Search, Shirt, SlidersHorizontal, X } from 'lucide-react'
 import { Dialog } from '@/components/ui/Dialog'
 import { EmptyState } from '@/components/ui/EmptyState'
@@ -119,8 +119,11 @@ function FilterControls({ sizes, colors, filters, onChange }: { sizes: string[];
 
 function StoreGrid() {
   const { format } = useCurrency()
-  const { loading, error, products } = useProducts()
+  const { loading, error, products, categories } = useProducts()
   const navigate = useNavigate()
+  const [searchParams, setSearchParams] = useSearchParams()
+  const categoryId = searchParams.get('category')
+  const selectedCategory = categoryId ? categories.find((c) => c.id === categoryId) : null
   const [code, setCode] = useState('')
   const [codeError, setCodeError] = useState<string | null>(null)
   const [sort, setSort] = useState<SortKey>('recent')
@@ -151,7 +154,10 @@ function StoreGrid() {
     }
   }, [loading])
 
-  const active = useMemo(() => products.filter((p) => p.isActive), [products])
+  const active = useMemo(
+    () => products.filter((p) => p.isActive && (!categoryId || p.categoryId === categoryId)),
+    [products, categoryId],
+  )
   const allSizes = useMemo(() => [...new Set(active.flatMap((p) => p.sizes))], [active])
   const allColors = useMemo(() => [...new Set(active.flatMap((p) => p.colors.map((c) => c.colorName)))], [active])
 
@@ -183,7 +189,12 @@ function StoreGrid() {
       <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="eyebrow mb-2">اختاري إطلالتك ✨</p>
-          <h1 className="display text-4xl sm:text-5xl">الفساتين</h1>
+          <h1 className="display text-4xl sm:text-5xl">{selectedCategory ? selectedCategory.name : 'الفساتين'}</h1>
+          {selectedCategory && (
+            <button type="button" onClick={() => setSearchParams({})} className="mt-1 text-xs text-muted underline underline-offset-2">
+              عرض كل الفئات
+            </button>
+          )}
         </div>
         <form onSubmit={onSearchCode} className="flex w-full max-w-xs gap-2">
           <div className="relative flex-1">

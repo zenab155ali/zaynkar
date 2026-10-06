@@ -1,11 +1,12 @@
 import { Navigate, NavLink, Outlet, useNavigate } from 'react-router-dom'
-import { LogOut, Package, Inbox } from 'lucide-react'
+import { LogOut, Package, Inbox, Tag } from 'lucide-react'
 import { Logo } from '@/components/ui/Logo'
 import { RequireSupabase } from '@/components/ui/RequireSupabase'
 import { useAuth } from '@/context/AuthContext'
 
 const TABS = [
   { to: '/admin/products', label: 'Products', icon: Package },
+  { to: '/admin/categories', label: 'Categories', icon: Tag },
   { to: '/admin/requests', label: 'Customer Requests', icon: Inbox },
 ]
 

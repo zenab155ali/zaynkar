@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react'
 import { Link, Navigate, useNavigate } from 'react-router-dom'
+import { Logo } from '@/components/ui/Logo'
 import { RequireSupabase } from '@/components/ui/RequireSupabase'
 import { TextField } from '@/components/ui/TextField'
 import { useAuth } from '@/context/AuthContext'
@@ -39,8 +40,9 @@ export default function SignUpPage() {
 
   return (
     <RequireSupabase>
-      <div className="container-page flex min-h-[70vh] items-center justify-center py-16">
-        <div className="w-full max-w-sm border border-line bg-white p-8">
+      <div className="flex min-h-[80vh] flex-col items-center justify-center bg-gradient-to-b from-sand/70 to-ivory px-4 py-16">
+        <Logo className="mb-8 !text-3xl text-mocha sm:!text-4xl" />
+        <div className="w-full max-w-sm border border-line bg-white p-8 shadow-sm">
           <h1 className="display text-2xl">إنشاء حساب</h1>
           <p className="mt-1 text-sm text-muted">سجّلي لاختيار ما يعجبكِ وإرسال قائمتكِ إلينا.</p>
 

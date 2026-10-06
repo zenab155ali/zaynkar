@@ -11,6 +11,7 @@ import OrderConfirmationPage from '@/pages/OrderConfirmationPage'
 import ProductPage from '@/pages/ProductPage'
 import SearchPage from '@/pages/SearchPage'
 import StaticPage from '@/pages/StaticPage'
+import AdminCategoriesPage from '@/pages/admin/AdminCategoriesPage'
 import AdminLayout from '@/pages/admin/AdminLayout'
 import AdminLoginPage from '@/pages/admin/AdminLoginPage'
 import AdminProductFormPage from '@/pages/admin/AdminProductFormPage'
@@ -34,6 +35,7 @@ export default function App() {
         <Route path="products" element={<AdminProductsPage />} />
         <Route path="products/new" element={<AdminProductFormPage />} />
         <Route path="products/:productId" element={<AdminProductFormPage />} />
+        <Route path="categories" element={<AdminCategoriesPage />} />
         <Route path="requests" element={<AdminRequestsPage />} />
       </Route>
 

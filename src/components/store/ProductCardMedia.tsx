@@ -1,6 +1,8 @@
 import { useRef, useState } from 'react'
-import { ChevronLeft, ChevronRight, Layers, X } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Layers, ShoppingBag, X } from 'lucide-react'
 import { Dialog } from '@/components/ui/Dialog'
+import { useSelections } from '@/context/SelectionsContext'
+import { useToast } from '@/context/ToastContext'
 import type { CatalogProduct } from '@/types/catalog'
 
 /** Cover photo first, then each color's own photo (deduplicated) — lets customers swipe through colors right from the grid. */
@@ -28,8 +30,26 @@ export function ProductCardMedia({ product }: { product: CatalogProduct }) {
   const images = galleryImages(product)
   const [index, setIndex] = useState(0)
   const [colorsOpen, setColorsOpen] = useState(false)
+  const [quickAddOpen, setQuickAddOpen] = useState(false)
+  const [qaColor, setQaColor] = useState(product.colors[0]?.colorName ?? '')
+  const [qaSize, setQaSize] = useState<string | null>(null)
+  const [qaSizeError, setQaSizeError] = useState(false)
+  const { add } = useSelections()
+  const { toast } = useToast()
   const touchStartX = useRef<number | null>(null)
   const swiped = useRef(false)
+
+  const onQuickAdd = () => {
+    if (product.sizes.length > 0 && !qaSize) {
+      setQaSizeError(true)
+      return
+    }
+    add({ productId: product.id, size: qaSize ?? 'بدون مقاس', colorName: qaColor || 'غير محدد', quantity: 1 })
+    toast({ title: 'أُضيف إلى سلة التسوق', description: `${product.name} · ${qaColor} · ${qaSize ?? ''}`, action: { label: 'عرض سلة التسوق', to: '/selections' } })
+    setQuickAddOpen(false)
+    setQaSize(null)
+    setQaSizeError(false)
+  }
 
   const go = (delta: number) => setIndex((i) => (i + delta + images.length) % images.length)
 
@@ -124,6 +144,95 @@ export function ProductCardMedia({ product }: { product: CatalogProduct }) {
               </button>
             )
           })}
+        </div>
+      </Dialog>
+
+      <button
+        type="button"
+        onClick={(e) => {
+          e.preventDefault()
+          e.stopPropagation()
+          setQuickAddOpen(true)
+        }}
+        aria-label={`أضيفي ${product.name} إلى السلة`}
+        className="absolute bottom-2 start-2 grid h-8 w-8 place-items-center rounded-full bg-ivory/90 text-ink shadow-sm transition-colors hover:bg-ink hover:text-ivory"
+      >
+        <ShoppingBag size={14} aria-hidden="true" />
+      </button>
+
+      <Dialog open={quickAddOpen} onClose={() => setQuickAddOpen(false)} label={`إضافة ${product.name} إلى السلة`} variant="center">
+        <div className="flex h-14 items-center justify-between border-b border-line px-4">
+          <h2 className="text-sm font-medium">{product.name}</h2>
+          <button
+            type="button"
+            onClick={(e) => {
+              e.preventDefault()
+              e.stopPropagation()
+              setQuickAddOpen(false)
+            }}
+            aria-label="إغلاق"
+            className="-me-2 grid h-10 w-10 place-items-center hover:bg-sand"
+          >
+            <X size={18} />
+          </button>
+        </div>
+        <div className="p-4">
+          {product.colors.length > 0 && (
+            <div className="mb-4">
+              <p className="mb-2 text-sm">
+                اللون: <span className="font-medium">{qaColor}</span>
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {product.colors.map((c) => (
+                  <button
+                    key={c.id}
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault()
+                      e.stopPropagation()
+                      setQaColor(c.colorName)
+                    }}
+                    className={`border px-3.5 py-2 text-sm transition-colors ${qaColor === c.colorName ? 'border-ink bg-ink text-ivory' : 'border-line bg-white hover:border-ink'}`}
+                  >
+                    {c.colorName}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+          {product.sizes.length > 0 && (
+            <div className="mb-4">
+              <p className="mb-2 text-sm">المقاس: {qaSize ?? <span className="text-muted">اختاري مقاسًا</span>}</p>
+              <div className={`flex flex-wrap gap-2 ${qaSizeError && !qaSize ? 'outline outline-1 outline-offset-4 outline-sale' : ''}`}>
+                {product.sizes.map((s) => (
+                  <button
+                    key={s}
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault()
+                      e.stopPropagation()
+                      setQaSize(s)
+                      setQaSizeError(false)
+                    }}
+                    className={`h-11 min-w-12 border px-3 text-sm transition-colors ${qaSize === s ? 'border-ink bg-ink text-ivory' : 'border-line bg-white hover:border-ink'}`}
+                  >
+                    {s}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+          <button
+            type="button"
+            onClick={(e) => {
+              e.preventDefault()
+              e.stopPropagation()
+              onQuickAdd()
+            }}
+            className="btn btn-primary mt-2 !h-12 w-full"
+          >
+            <ShoppingBag size={16} aria-hidden="true" /> أضيفي إلى سلة التسوق
+          </button>
         </div>
       </Dialog>
 

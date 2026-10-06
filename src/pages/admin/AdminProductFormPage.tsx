@@ -1,6 +1,6 @@
-import { useMemo, useRef, useState, type FormEvent } from 'react'
+import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import { ArrowLeft, Loader2, Plus, Trash2, Upload } from 'lucide-react'
+import { ArrowLeft, Loader2, Plus, Trash2, Upload, X } from 'lucide-react'
 import { CoverFocalPicker } from '@/components/admin/CoverFocalPicker'
 import { MediaUploadField } from '@/components/admin/MediaUploadField'
 import { TagInput } from '@/components/admin/TagInput'
@@ -21,6 +21,19 @@ interface MediaRow {
   type: MediaType
 }
 
+interface DraftShape {
+  name: string
+  categoryId: string
+  description: string
+  price: string
+  sizes: string[]
+  isActive: boolean
+  media: MediaRow[]
+  coverFocalX: number
+  coverFocalY: number
+  colors: ColorRow[]
+}
+
 export default function AdminProductFormPage() {
   const { productId } = useParams()
   const isEditing = Boolean(productId && productId !== 'new')
@@ -29,20 +42,53 @@ export default function AdminProductFormPage() {
   const existing = isEditing ? getById(productId as string) : undefined
   useDocumentTitle(isEditing ? `Edit ${existing?.name ?? 'product'}` : 'Add new product')
 
-  const [name, setName] = useState(existing?.name ?? '')
-  const [categoryId, setCategoryId] = useState(existing?.categoryId ?? '')
+  // Auto-saved locally so an interrupted session (closed tab, logged out, phone locked) never
+  // loses in-progress typing/uploads — uploaded photos are already safe in storage regardless.
+  const draftKey = isEditing ? `zaynkar:admin:draft:product:${productId}` : 'zaynkar:admin:draft:new-product'
+  const draft = useMemo<Partial<DraftShape> | null>(() => {
+    try {
+      const raw = localStorage.getItem(draftKey)
+      return raw ? (JSON.parse(raw) as Partial<DraftShape>) : null
+    } catch {
+      return null
+    }
+  }, [draftKey])
+  const [draftRestored] = useState(() => draft !== null)
+
+  const [name, setName] = useState(draft?.name ?? existing?.name ?? '')
+  const [categoryId, setCategoryId] = useState(draft?.categoryId ?? existing?.categoryId ?? '')
   const [addingCategory, setAddingCategory] = useState(false)
   const [newCategoryName, setNewCategoryName] = useState('')
-  const [description, setDescription] = useState(existing?.description ?? '')
-  const [price, setPrice] = useState(existing ? String(existing.price) : '')
-  const [sizes, setSizes] = useState<string[]>(existing?.sizes ?? [])
-  const [isActive, setIsActive] = useState(existing?.isActive ?? true)
-  const [media, setMedia] = useState<MediaRow[]>(existing?.media.map((m) => ({ url: m.url, type: m.type })) ?? [])
-  const [coverFocalX, setCoverFocalX] = useState(existing?.coverFocalX ?? 50)
-  const [coverFocalY, setCoverFocalY] = useState(existing?.coverFocalY ?? 50)
-  const [colors, setColors] = useState<ColorRow[]>(existing?.colors.map((c) => ({ colorName: c.colorName, photoUrl: c.photoUrl })) ?? [{ colorName: '', photoUrl: null }])
+  const [description, setDescription] = useState(draft?.description ?? existing?.description ?? '')
+  const [price, setPrice] = useState(draft?.price ?? (existing ? String(existing.price) : ''))
+  const [sizes, setSizes] = useState<string[]>(draft?.sizes ?? existing?.sizes ?? [])
+  const [isActive, setIsActive] = useState(draft?.isActive ?? existing?.isActive ?? true)
+  const [media, setMedia] = useState<MediaRow[]>(draft?.media ?? existing?.media.map((m) => ({ url: m.url, type: m.type })) ?? [])
+  const [coverFocalX, setCoverFocalX] = useState(draft?.coverFocalX ?? existing?.coverFocalX ?? 50)
+  const [coverFocalY, setCoverFocalY] = useState(draft?.coverFocalY ?? existing?.coverFocalY ?? 50)
+  const [colors, setColors] = useState<ColorRow[]>(
+    draft?.colors ?? existing?.colors.map((c) => ({ colorName: c.colorName, photoUrl: c.photoUrl })) ?? [{ colorName: '', photoUrl: null }],
+  )
   const [bulkUploading, setBulkUploading] = useState(false)
   const bulkInputRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    const snapshot: DraftShape = { name, categoryId, description, price, sizes, isActive, media, coverFocalX, coverFocalY, colors }
+    try {
+      localStorage.setItem(draftKey, JSON.stringify(snapshot))
+    } catch {
+      // ignore (storage full or blocked)
+    }
+  }, [draftKey, name, categoryId, description, price, sizes, isActive, media, coverFocalX, coverFocalY, colors])
+
+  const discardDraft = () => {
+    try {
+      localStorage.removeItem(draftKey)
+    } catch {
+      // ignore
+    }
+    window.location.reload()
+  }
 
   const [error, setError] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
@@ -147,6 +193,11 @@ export default function AdminProductFormPage() {
         .insert(cleanMedia.map((m, i) => ({ media_url: m.url, media_type: m.type, product_id: productRowId, sort_order: i })))
     }
 
+    try {
+      localStorage.removeItem(draftKey)
+    } catch {
+      // ignore
+    }
     await refresh()
     setSaving(false)
     navigate('/admin/products')
@@ -165,6 +216,15 @@ export default function AdminProductFormPage() {
         <p className="mt-1 text-xs text-muted">
           Code: <span className="font-mono">{existing?.code}</span> (cannot be changed)
         </p>
+      )}
+
+      {draftRestored && (
+        <div className="mt-4 flex items-center justify-between gap-3 border border-line bg-sand/50 px-4 py-2.5 text-xs">
+          <span>Restored your unsaved draft from last time.</span>
+          <button type="button" onClick={discardDraft} className="inline-flex items-center gap-1 underline underline-offset-2 hover:text-sale">
+            <X size={12} /> Discard draft & start over
+          </button>
+        </div>
       )}
 
       <form onSubmit={onSubmit} className="mt-6 space-y-6">
