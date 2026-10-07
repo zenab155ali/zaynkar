@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
-import { Link, useNavigate, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { ArrowLeft, Loader2, Plus, Trash2, Upload, X } from 'lucide-react'
 import { CoverFocalPicker } from '@/components/admin/CoverFocalPicker'
 import { MediaUploadField } from '@/components/admin/MediaUploadField'
@@ -8,6 +8,7 @@ import { TextField } from '@/components/ui/TextField'
 import { useProducts } from '@/context/ProductsContext'
 import { supabase } from '@/lib/supabase'
 import { uploadProductMedia, validateMediaFile } from '@/lib/uploadProductMedia'
+import { draftKeyForNewProduct, draftKeyForProduct } from '@/lib/productDrafts'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import type { MediaType } from '@/types/catalog'
 
@@ -32,10 +33,12 @@ interface DraftShape {
   coverFocalX: number
   coverFocalY: number
   colors: ColorRow[]
+  savedAt: number
 }
 
 export default function AdminProductFormPage() {
   const { productId } = useParams()
+  const [searchParams] = useSearchParams()
   const isEditing = Boolean(productId && productId !== 'new')
   const navigate = useNavigate()
   const { loading: catalogLoading, categories, products, getById, refresh } = useProducts()
@@ -44,7 +47,10 @@ export default function AdminProductFormPage() {
 
   // Auto-saved locally so an interrupted session (closed tab, logged out, phone locked) never
   // loses in-progress typing/uploads — uploaded photos are already safe in storage regardless.
-  const draftKey = isEditing ? `zaynkar:admin:draft:product:${productId}` : 'zaynkar:admin:draft:new-product'
+  // Each browser tab gets its own slot (so opening many "add product" tabs at once doesn't make
+  // them overwrite each other) unless ?draft=<key> explicitly asks to resume a specific one —
+  // that's how the "recover drafts" list on the products page reopens an abandoned tab's draft.
+  const draftKey = searchParams.get('draft') || (isEditing ? draftKeyForProduct(productId as string) : draftKeyForNewProduct())
   const draft = useMemo<Partial<DraftShape> | null>(() => {
     try {
       const raw = localStorage.getItem(draftKey)
@@ -73,7 +79,7 @@ export default function AdminProductFormPage() {
   const bulkInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
-    const snapshot: DraftShape = { name, categoryId, description, price, sizes, isActive, media, coverFocalX, coverFocalY, colors }
+    const snapshot: DraftShape = { name, categoryId, description, price, sizes, isActive, media, coverFocalX, coverFocalY, colors, savedAt: Date.now() }
     try {
       localStorage.setItem(draftKey, JSON.stringify(snapshot))
     } catch {

@@ -1,12 +1,67 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Eye, EyeOff, Heart, Package, Pencil, Plus, ShoppingBag, Trash2, Video } from 'lucide-react'
+import { Eye, EyeOff, FileClock, Heart, Package, Pencil, Plus, ShoppingBag, Trash2, Video, X } from 'lucide-react'
 import { SmartImage } from '@/components/ui/SmartImage'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { useCurrency } from '@/context/CurrencyContext'
 import { useProducts } from '@/context/ProductsContext'
 import { supabase } from '@/lib/supabase'
+import { listDrafts, removeDraft, type DraftSummary } from '@/lib/productDrafts'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
+
+function relativeTime(ms: number): string {
+  const minutes = Math.round((Date.now() - ms) / 60000)
+  if (minutes < 1) return 'just now'
+  if (minutes < 60) return `${minutes} minute${minutes === 1 ? '' : 's'} ago`
+  const hours = Math.round(minutes / 60)
+  if (hours < 24) return `${hours} hour${hours === 1 ? '' : 's'} ago`
+  const days = Math.round(hours / 24)
+  return `${days} day${days === 1 ? '' : 's'} ago`
+}
+
+function DraftsRecovery({ resolveName }: { resolveName: (productId: string) => string | undefined }) {
+  const [drafts, setDrafts] = useState<DraftSummary[]>([])
+
+  useEffect(() => {
+    setDrafts(listDrafts())
+  }, [])
+
+  if (drafts.length === 0) return null
+
+  const discard = (key: string) => {
+    removeDraft(key)
+    setDrafts((prev) => prev.filter((d) => d.key !== key))
+  }
+
+  return (
+    <div className="mb-6 border border-line bg-sand/40">
+      <div className="flex items-center gap-2 border-b border-line px-4 py-2.5 text-xs font-medium uppercase tracking-wider text-muted">
+        <FileClock size={14} /> Unsaved drafts found ({drafts.length})
+      </div>
+      <ul className="divide-y divide-line">
+        {drafts.map((d) => (
+          <li key={d.key} className="flex items-center justify-between gap-3 px-4 py-2.5 text-sm">
+            <div>
+              <span className="font-medium">{d.productId ? resolveName(d.productId) ?? d.name : d.name}</span>
+              <span className="ms-2 text-xs text-muted">{d.productId ? 'editing' : 'new product'} · saved {relativeTime(d.savedAt)}</span>
+            </div>
+            <div className="flex shrink-0 items-center gap-3">
+              <Link
+                to={`/admin/products/${d.productId ?? 'new'}?draft=${encodeURIComponent(d.key)}`}
+                className="text-xs font-medium underline underline-offset-2"
+              >
+                Resume
+              </Link>
+              <button type="button" onClick={() => discard(d.key)} aria-label="Discard this draft" className="text-muted hover:text-sale">
+                <X size={14} />
+              </button>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
+}
 
 export default function AdminProductsPage() {
   useDocumentTitle('Admin — Products')
@@ -50,6 +105,8 @@ export default function AdminProductsPage() {
           <Plus size={16} aria-hidden="true" /> Add new product
         </Link>
       </div>
+
+      <DraftsRecovery resolveName={(productId) => products.find((p) => p.id === productId)?.name} />
 
       {notice && (
         <p role="alert" className="mb-4 border border-sale/40 bg-white p-3 text-sm text-sale">
