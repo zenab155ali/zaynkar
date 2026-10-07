@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Eye, EyeOff, FileClock, Heart, Package, Pencil, Plus, ShoppingBag, Trash2, Video, X } from 'lucide-react'
+import { Eye, EyeOff, FileClock, Heart, Languages, Package, Pencil, Plus, ShoppingBag, Trash2, Video, X } from 'lucide-react'
 import { SmartImage } from '@/components/ui/SmartImage'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { useCurrency } from '@/context/CurrencyContext'
 import { useProducts } from '@/context/ProductsContext'
 import { supabase } from '@/lib/supabase'
+import { translateToHebrew } from '@/lib/translate'
 import { listDrafts, removeDraft, type DraftSummary } from '@/lib/productDrafts'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 
@@ -65,10 +66,11 @@ function DraftsRecovery({ resolveName }: { resolveName: (productId: string) => s
 
 export default function AdminProductsPage() {
   useDocumentTitle('Admin — Products')
-  const { loading, products, refresh } = useProducts()
+  const { loading, products, categories, refresh } = useProducts()
   const { format } = useCurrency()
   const [busyId, setBusyId] = useState<string | null>(null)
   const [notice, setNotice] = useState<string | null>(null)
+  const [translating, setTranslating] = useState(false)
 
   useEffect(() => {
     refresh()
@@ -94,6 +96,53 @@ export default function AdminProductsPage() {
     setBusyId(null)
   }
 
+  // Fills in any missing Hebrew translation for existing catalog data — safe to run more
+  // than once, since it only touches rows that don't already have a Hebrew value.
+  const translateExistingCatalog = async () => {
+    if (!supabase) return
+    setTranslating(true)
+    setNotice(null)
+    let filled = 0
+    try {
+      for (const c of categories) {
+        if (c.nameHe) continue
+        const nameHe = await translateToHebrew(c.name)
+        if (nameHe) {
+          await supabase.from('categories').update({ name_he: nameHe }).eq('id', c.id)
+          filled++
+        }
+      }
+      for (const p of products) {
+        const patch: { name_he?: string; description_he?: string } = {}
+        if (!p.nameHe) {
+          const nameHe = await translateToHebrew(p.name)
+          if (nameHe) patch.name_he = nameHe
+        }
+        if (p.description && !p.descriptionHe) {
+          const descriptionHe = await translateToHebrew(p.description)
+          if (descriptionHe) patch.description_he = descriptionHe
+        }
+        if (Object.keys(patch).length > 0) {
+          await supabase.from('products').update(patch).eq('id', p.id)
+          filled++
+        }
+        for (const color of p.colors) {
+          if (color.colorNameHe || !color.colorName.trim()) continue
+          const colorNameHe = await translateToHebrew(color.colorName)
+          if (colorNameHe) {
+            await supabase.from('product_colors').update({ color_name_he: colorNameHe }).eq('id', color.id)
+            filled++
+          }
+        }
+      }
+      setNotice(filled > 0 ? `Translated ${filled} item${filled === 1 ? '' : 's'} to Hebrew.` : 'Everything already has a Hebrew translation.')
+      await refresh()
+    } catch {
+      setNotice('Something went wrong while translating — you can try again.')
+    }
+    setTranslating(false)
+  }
+
   return (
     <div>
       <div className="mb-6 flex items-center justify-between gap-4">
@@ -101,9 +150,14 @@ export default function AdminProductsPage() {
           <h1 className="display text-3xl">Products</h1>
           <p className="text-sm text-muted">{products.length} total</p>
         </div>
-        <Link to="/admin/products/new" className="btn btn-primary btn-sm">
-          <Plus size={16} aria-hidden="true" /> Add new product
-        </Link>
+        <div className="flex items-center gap-2">
+          <button type="button" onClick={translateExistingCatalog} disabled={translating} className="btn btn-outline btn-sm disabled:opacity-50">
+            <Languages size={16} aria-hidden="true" /> {translating ? 'Translating…' : 'Translate catalog to Hebrew'}
+          </button>
+          <Link to="/admin/products/new" className="btn btn-primary btn-sm">
+            <Plus size={16} aria-hidden="true" /> Add new product
+          </Link>
+        </div>
       </div>
 
       <DraftsRecovery resolveName={(productId) => products.find((p) => p.id === productId)?.name} />

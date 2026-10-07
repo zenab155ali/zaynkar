@@ -8,6 +8,7 @@ import { SmartImage } from '@/components/ui/SmartImage'
 import { OrderStageTracker } from '@/components/store/OrderStageTracker'
 import { useAuth } from '@/context/AuthContext'
 import { useCurrency } from '@/context/CurrencyContext'
+import { useLanguage } from '@/context/LanguageContext'
 import { supabase } from '@/lib/supabase'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import type { CustomerRequest, RequestStage, RequestStatus } from '@/types/catalog'
@@ -42,7 +43,8 @@ interface RawRequest {
 }
 
 function MyRequestsView() {
-  useDocumentTitle('سلة مشترياتي')
+  const { t } = useLanguage()
+  useDocumentTitle(t('myRequestsTitle'))
   const { user, profile, signOut, loading: authLoading } = useAuth()
   const { format } = useCurrency()
   const navigate = useNavigate()
@@ -95,25 +97,25 @@ function MyRequestsView() {
       })
   }, [user])
 
-  if (authLoading) return <p className="container-page py-8 text-sm text-muted">جارٍ التحميل…</p>
+  if (authLoading) return <p className="container-page py-8 text-sm text-muted">{t('loading')}</p>
   if (!user) return <Navigate to="/signin" state={{ from: '/my-requests' }} replace />
 
   return (
     <div className="container-page py-8">
-      <Breadcrumbs items={[{ label: 'الرئيسية', to: '/' }, { label: 'سلة مشترياتي' }]} />
+      <Breadcrumbs items={[{ label: t('home'), to: '/' }, { label: t('myRequestsTitle') }]} />
       <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
-        <h1 className="display text-4xl">سلة مشترياتي</h1>
+        <h1 className="display text-4xl">{t('myRequestsTitle')}</h1>
         <button type="button" onClick={handleSignOut} className="flex items-center gap-2 text-sm text-muted hover:text-sale">
-          <LogOut size={16} strokeWidth={1.6} aria-hidden="true" /> تسجيل الخروج
+          <LogOut size={16} strokeWidth={1.6} aria-hidden="true" /> {t('signOut')}
         </button>
       </div>
 
       {loading ? (
-        <p className="mt-6 text-sm text-muted">جارٍ التحميل…</p>
+        <p className="mt-6 text-sm text-muted">{t('loading')}</p>
       ) : requests.length === 0 ? (
-        <EmptyState icon={<Inbox size={26} strokeWidth={1.3} />} title="لا توجد طلبات بعد" description="القوائم التي ترسلينها ستظهر هنا.">
+        <EmptyState icon={<Inbox size={26} strokeWidth={1.3} />} title={t('noOrdersYet')} description={t('ordersWillShowHere')}>
           <Link to="/store" className="btn btn-primary">
-            تصفحي الفساتين
+            {t('browseDresses')}
           </Link>
         </EmptyState>
       ) : (
@@ -137,20 +139,20 @@ function MyRequestsView() {
                         <Phone size={13} aria-hidden="true" /> {profile.phone}
                       </span>
                     )}
-                    <span className="font-medium">الإجمالي: {format(total)}</span>
+                    <span className="font-medium">{t('total')}: {format(total)}</span>
                   </div>
                 </div>
                 {r.note && <p className="border-b border-line px-5 py-2.5 text-sm italic text-muted">"{r.note}"</p>}
 
                 <div className="border-b border-line px-5 py-4">
-                  <p className="mb-3 text-xs font-medium tracking-wide text-muted">حالة الطلبية</p>
+                  <p className="mb-3 text-xs font-medium tracking-wide text-muted">{t('orderStatus')}</p>
                   <OrderStageTracker stage={r.stage} />
                 </div>
 
                 {r.messages.length > 0 && (
                   <div className="border-b border-line bg-sand/20 px-5 py-4">
                     <p className="mb-2 flex items-center gap-1.5 text-xs font-medium tracking-wide text-muted">
-                      <MessageCircle size={14} aria-hidden="true" /> رسائل من المتجر
+                      <MessageCircle size={14} aria-hidden="true" /> {t('messagesFromStore')}
                     </p>
                     <ul className="space-y-2">
                       {r.messages.map((m) => (
@@ -174,11 +176,11 @@ function MyRequestsView() {
                       <div className="min-w-0 flex-1 text-sm">
                         <p className="font-medium">{item.productName}</p>
                         <p className="mt-0.5 text-xs text-muted">
-                          الرمز:{' '}
+                          {t('code')}:{' '}
                           <span className="font-mono" dir="ltr">
                             {item.productCode}
                           </span>{' '}
-                          · {item.colorName} · المقاس {item.size} · الكمية {item.quantity}
+                          · {item.colorName} · {t('size')} {item.size} · {t('quantity')} {item.quantity}
                         </p>
                       </div>
                       <p className="text-sm">{format(item.price * item.quantity)}</p>

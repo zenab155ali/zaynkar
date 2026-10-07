@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { ChevronLeft, ChevronRight, Video } from 'lucide-react'
+import { useLanguage } from '@/context/LanguageContext'
 import type { ProductMedia } from '@/types/catalog'
 
 interface StoreMediaGalleryProps {
@@ -10,11 +11,12 @@ interface StoreMediaGalleryProps {
 /** A simple photo/video gallery for the live store — swaps in a color's photo first when one is selected. */
 export function StoreMediaGallery({ media, name }: StoreMediaGalleryProps) {
   const [active, setActive] = useState(0)
+  const { t } = useLanguage()
 
   useEffect(() => setActive(0), [media])
 
   if (media.length === 0) {
-    return <div className="grid aspect-[3/4] place-items-center bg-sand text-taupe">لا توجد صورة بعد</div>
+    return <div className="grid aspect-[3/4] place-items-center bg-sand text-taupe">{t('noPhotoYet')}</div>
   }
 
   const current = media[active]
@@ -30,10 +32,10 @@ export function StoreMediaGallery({ media, name }: StoreMediaGalleryProps) {
         )}
         {media.length > 1 && (
           <>
-            <button type="button" onClick={() => go(-1)} aria-label="السابق" className="absolute left-3 top-1/2 grid h-10 w-10 -translate-y-1/2 place-items-center rounded-full bg-white/90 shadow">
+            <button type="button" onClick={() => go(-1)} aria-label={t('previous')} className="absolute left-3 top-1/2 grid h-10 w-10 -translate-y-1/2 place-items-center rounded-full bg-white/90 shadow">
               <ChevronLeft size={20} />
             </button>
-            <button type="button" onClick={() => go(1)} aria-label="التالي" className="absolute right-3 top-1/2 grid h-10 w-10 -translate-y-1/2 place-items-center rounded-full bg-white/90 shadow">
+            <button type="button" onClick={() => go(1)} aria-label={t('next')} className="absolute right-3 top-1/2 grid h-10 w-10 -translate-y-1/2 place-items-center rounded-full bg-white/90 shadow">
               <ChevronRight size={20} />
             </button>
           </>
@@ -46,7 +48,7 @@ export function StoreMediaGallery({ media, name }: StoreMediaGalleryProps) {
               key={i}
               type="button"
               onClick={() => setActive(i)}
-              aria-label={`عرض الصورة ${i + 1}`}
+              aria-label={`${t('viewImageN')} ${i + 1}`}
               className={`relative grid aspect-[3/4] w-16 place-items-center overflow-hidden bg-sand transition lg:w-full ${i === active ? 'ring-1 ring-ink ring-offset-2 ring-offset-ivory' : 'opacity-70 hover:opacity-100'}`}
             >
               {m.type === 'video' ? <Video size={16} className="text-muted" /> : <img src={m.url} alt="" className="h-full w-full object-cover" />}

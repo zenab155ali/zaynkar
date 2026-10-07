@@ -25,6 +25,7 @@ interface RawMedia {
 interface RawColor {
   id: string
   color_name: string
+  color_name_he: string | null
   photo_url: string | null
   sort_order: number
 }
@@ -32,8 +33,10 @@ interface RawProduct {
   id: string
   code: string
   name: string
+  name_he: string | null
   category_id: string
   description: string
+  description_he: string | null
   price: number
   sizes: string[]
   is_active: boolean
@@ -52,9 +55,11 @@ function mapProduct(row: RawProduct, pickCounts: Map<string, number>, likeCounts
     id: row.id,
     code: row.code,
     name: row.name,
+    nameHe: row.name_he,
     categoryId: row.category_id,
     categoryName: row.categories?.name ?? '',
     description: row.description,
+    descriptionHe: row.description_he,
     price: Number(row.price),
     sizes: row.sizes ?? [],
     isActive: row.is_active,
@@ -62,7 +67,9 @@ function mapProduct(row: RawProduct, pickCounts: Map<string, number>, likeCounts
     coverFocalY: Number(row.cover_focal_y),
     createdAt: row.created_at,
     media: [...row.product_media].sort(bySortOrder).map((m) => ({ id: m.id, url: m.media_url, type: m.media_type, sortOrder: m.sort_order })),
-    colors: [...row.product_colors].sort(bySortOrder).map((c) => ({ id: c.id, colorName: c.color_name, photoUrl: c.photo_url, sortOrder: c.sort_order })),
+    colors: [...row.product_colors]
+      .sort(bySortOrder)
+      .map((c) => ({ id: c.id, colorName: c.color_name, colorNameHe: c.color_name_he, photoUrl: c.photo_url, sortOrder: c.sort_order })),
     pickCount: pickCounts.get(row.id) ?? 0,
     likeCount: likeCounts.get(row.id) ?? 0,
   }
@@ -88,7 +95,7 @@ export function ProductsProvider({ children }: { children: ReactNode }) {
     setLoading(true)
     setError(null)
     const [catRes, prodRes, pickRes, likeRes] = await Promise.all([
-      supabase.from('categories').select('id, name, sort_order, photo_url').order('sort_order'),
+      supabase.from('categories').select('id, name, name_he, sort_order, photo_url').order('sort_order'),
       supabase
         .from('products')
         .select('*, categories(name), product_media(*), product_colors(*)')
@@ -108,7 +115,7 @@ export function ProductsProvider({ children }: { children: ReactNode }) {
     )
     const likeCounts = countBy((likeRes.data as { product_id: string }[] | null) ?? [])
 
-    setCategories((catRes.data ?? []).map((c) => ({ id: c.id, name: c.name, sortOrder: c.sort_order, photoUrl: c.photo_url })))
+    setCategories((catRes.data ?? []).map((c) => ({ id: c.id, name: c.name, nameHe: c.name_he, sortOrder: c.sort_order, photoUrl: c.photo_url })))
     setProducts(((prodRes.data as RawProduct[] | null) ?? []).map((row) => mapProduct(row, pickCounts, likeCounts)))
     setLoading(false)
   }, [])

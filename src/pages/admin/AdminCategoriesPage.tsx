@@ -3,6 +3,7 @@ import { Pencil, Plus, Trash2, X } from 'lucide-react'
 import { MediaUploadField } from '@/components/admin/MediaUploadField'
 import { useProducts } from '@/context/ProductsContext'
 import { supabase } from '@/lib/supabase'
+import { translateToHebrew } from '@/lib/translate'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 
 export default function AdminCategoriesPage() {
@@ -30,7 +31,8 @@ export default function AdminCategoriesPage() {
     if (!trimmed || !supabase) return
     setAdding(true)
     setError(null)
-    const { error: insertError } = await supabase.from('categories').insert({ name: trimmed, sort_order: categories.length })
+    const nameHe = await translateToHebrew(trimmed)
+    const { error: insertError } = await supabase.from('categories').insert({ name: trimmed, name_he: nameHe, sort_order: categories.length })
     setAdding(false)
     if (insertError) {
       setError(insertError.message)
@@ -53,7 +55,8 @@ export default function AdminCategoriesPage() {
       return
     }
     setSavingId(id)
-    const { error: updateError } = await supabase.from('categories').update({ name: trimmed }).eq('id', id)
+    const nameHe = await translateToHebrew(trimmed)
+    const { error: updateError } = await supabase.from('categories').update({ name: trimmed, name_he: nameHe }).eq('id', id)
     setSavingId(null)
     if (updateError) {
       setError(updateError.message)

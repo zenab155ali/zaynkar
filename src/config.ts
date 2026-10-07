@@ -19,4 +19,5 @@ export const STORAGE_KEYS = {
   cookies: 'zaynkar:cookies:v1',
   recentSearches: 'zaynkar:searches:v1',
   selections: 'zaynkar:selections:v1',
+  lang: 'zaynkar:lang:v1',
 } as const

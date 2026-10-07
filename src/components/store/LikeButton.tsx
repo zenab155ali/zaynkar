@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import { Heart } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
+import { useLanguage } from '@/context/LanguageContext'
 import { useLikes } from '@/context/LikesContext'
 
 interface LikeButtonProps {
@@ -14,6 +15,7 @@ interface LikeButtonProps {
 /** Heart toggle for a product — signed-out visitors are sent to sign in first. */
 export function LikeButton({ productId, productName, variant = 'card', className = '' }: LikeButtonProps) {
   const { user } = useAuth()
+  const { t } = useLanguage()
   const { isLiked, toggleLike } = useLikes()
   const navigate = useNavigate()
   const liked = isLiked(productId)
@@ -27,8 +29,8 @@ export function LikeButton({ productId, productName, variant = 'card', className
     <button
       type="button"
       aria-pressed={liked}
-      aria-label={liked ? `إزالة ${productName} من المفضلة` : `إضافة ${productName} إلى المفضلة`}
-      title={liked ? 'إزالة من المفضلة' : 'أضيفي إلى المفضلة'}
+      aria-label={`${liked ? t('removeFromFavorites') : t('addToFavorites')} — ${productName}`}
+      title={liked ? t('removeFromFavorites') : t('addToFavorites')}
       onClick={(e) => {
         e.preventDefault()
         e.stopPropagation()

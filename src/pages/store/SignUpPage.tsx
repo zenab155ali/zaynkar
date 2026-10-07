@@ -4,10 +4,12 @@ import { Logo } from '@/components/ui/Logo'
 import { RequireSupabase } from '@/components/ui/RequireSupabase'
 import { TextField } from '@/components/ui/TextField'
 import { useAuth } from '@/context/AuthContext'
+import { useLanguage } from '@/context/LanguageContext'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 
 export default function SignUpPage() {
-  useDocumentTitle('إنشاء حساب')
+  const { t } = useLanguage()
+  useDocumentTitle(t('createAccount'))
   const { user, loading: authLoading, signUpCustomer } = useAuth()
   const navigate = useNavigate()
   const [fullName, setFullName] = useState('')
@@ -43,38 +45,38 @@ export default function SignUpPage() {
       <div className="flex min-h-[80vh] flex-col items-center justify-center bg-gradient-to-b from-sand/70 to-ivory px-4 py-16">
         <Logo className="mb-8 !text-3xl text-mocha sm:!text-4xl" />
         <div className="w-full max-w-sm border border-line bg-white p-8 shadow-sm">
-          <h1 className="display text-2xl">إنشاء حساب</h1>
-          <p className="mt-1 text-sm text-muted">سجّلي لاختيار ما يعجبكِ وإرسال قائمتكِ إلينا.</p>
+          <h1 className="display text-2xl">{t('createAccount')}</h1>
+          <p className="mt-1 text-sm text-muted">{t('signUpHint')}</p>
 
           {confirmNeeded ? (
             <p className="mt-6 text-sm leading-relaxed">
-              تحققي من بريدكِ الإلكتروني لتأكيد حسابكِ، ثم عودي و{' '}
+              {t('confirmEmailHint1')}{' '}
               <Link to="/signin" className="underline underline-offset-2">
-                سجّلي الدخول
+                {t('signInHere')}
               </Link>
               .
             </p>
           ) : (
             <form onSubmit={onSubmit} className="mt-6 space-y-4">
-              <TextField label="الاسم الكامل" required autoComplete="name" value={fullName} onChange={(e) => setFullName(e.target.value)} />
-              <TextField label="رقم الهاتف" type="tel" required autoComplete="tel" value={phone} onChange={(e) => setPhone(e.target.value)} />
-              <TextField label="البريد الإلكتروني" type="email" required autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} />
-              <TextField label="كلمة المرور" type="password" required autoComplete="new-password" minLength={6} hint="٦ أحرف على الأقل." value={password} onChange={(e) => setPassword(e.target.value)} />
+              <TextField label={t('fullName')} required autoComplete="name" value={fullName} onChange={(e) => setFullName(e.target.value)} />
+              <TextField label={t('phoneNumber')} type="tel" required autoComplete="tel" value={phone} onChange={(e) => setPhone(e.target.value)} />
+              <TextField label={t('email')} type="email" required autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+              <TextField label={t('password')} type="password" required autoComplete="new-password" minLength={6} hint={t('passwordHint')} value={password} onChange={(e) => setPassword(e.target.value)} />
               {error && (
                 <p role="alert" className="text-sm text-sale">
                   {error}
                 </p>
               )}
               <button type="submit" disabled={submitting} className="btn btn-primary w-full">
-                {submitting ? 'جارٍ إنشاء الحساب…' : 'إنشاء حساب'}
+                {submitting ? t('creatingAccount') : t('createAccount')}
               </button>
             </form>
           )}
 
           <p className="mt-6 text-center text-sm text-muted">
-            لديكِ حساب بالفعل؟{' '}
+            {t('alreadyHaveAccount')}{' '}
             <Link to="/signin" className="font-medium text-ink underline underline-offset-2">
-              تسجيل الدخول
+              {t('signIn')}
             </Link>
           </p>
         </div>

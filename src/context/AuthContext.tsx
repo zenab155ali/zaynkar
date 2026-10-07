@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
 import type { Session, User } from '@supabase/supabase-js'
+import { useLanguage, type Lang } from '@/context/LanguageContext'
 import { ADMIN_INTERNAL_EMAIL, ADMIN_USERNAME, supabase } from '@/lib/supabase'
 import type { CustomerProfile } from '@/types/catalog'
 
@@ -34,14 +35,19 @@ const AuthContext = createContext<AuthContextValue | null>(null)
 /** Signup details cached only long enough to create the profile row after the customer's first real sign-in (see note below). */
 const PENDING_PROFILE_KEY = 'zaynkar:pending-profile'
 
-const friendlyAuthError = (message: string): string => {
-  if (/invalid login credentials/i.test(message)) return 'البريد الإلكتروني أو كلمة المرور غير صحيحة.'
-  if (/already registered|already exists/i.test(message)) return 'يوجد حساب بهذا البريد الإلكتروني بالفعل — جرّبي تسجيل الدخول بدلًا من ذلك.'
-  if (/password/i.test(message) && /least/i.test(message)) return 'كلمة المرور قصيرة جدًا — يجب أن تكون ٦ أحرف على الأقل.'
+const friendlyAuthError = (message: string, lang: Lang): string => {
+  if (/invalid login credentials/i.test(message)) return lang === 'he' ? 'האימייל או הסיסמה שגויים.' : 'البريد الإلكتروني أو كلمة المرور غير صحيحة.'
+  if (/already registered|already exists/i.test(message))
+    return lang === 'he' ? 'כבר קיים חשבון עם אימייל זה — נסי להתחבר במקום זאת.' : 'يوجد حساب بهذا البريد الإلكتروني بالفعل — جرّبي تسجيل الدخول بدلًا من ذلك.'
+  if (/password/i.test(message) && /least/i.test(message)) return lang === 'he' ? 'הסיסמה קצרה מדי — חייבת להיות לפחות 6 תווים.' : 'كلمة المرور قصيرة جدًا — يجب أن تكون ٦ أحرف على الأقل.'
   return message
 }
 
+const notConnectedError = (lang: Lang): string => (lang === 'he' ? 'עדיין לא מחוברת למסד הנתונים.' : 'غير متصل بقاعدة البيانات بعد.')
+const signUpFailedError = (lang: Lang): string => (lang === 'he' ? 'אירעה שגיאה בעת יצירת החשבון. נסי שוב.' : 'حدث خطأ أثناء إنشاء الحساب. حاولي مرة أخرى.')
+
 export function AuthProvider({ children }: { children: ReactNode }) {
+  const { lang } = useLanguage()
   const [loading, setLoading] = useState(true)
   const [user, setUser] = useState<User | null>(null)
   const [profile, setProfile] = useState<CustomerProfile | null>(null)
@@ -115,17 +121,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [applySession])
 
   const signUpCustomer = useCallback(async ({ email, password, fullName, phone }: SignUpInput): Promise<AuthResult> => {
-    if (!supabase) return { error: 'غير متصل بقاعدة البيانات بعد.' }
+    if (!supabase) return { error: notConnectedError(lang) }
     const { data, error } = await supabase.auth.signUp({ email, password })
-    if (error) return { error: friendlyAuthError(error.message) }
-    if (!data.user) return { error: 'حدث خطأ أثناء إنشاء الحساب. حاولي مرة أخرى.' }
+    if (error) return { error: friendlyAuthError(error.message, lang) }
+    if (!data.user) return { error: signUpFailedError(lang) }
 
     if (data.session) {
       // Confirmation disabled (recommended setup) — we're signed in immediately, create the profile now.
       const { error: profileError } = await supabase
         .from('customer_profiles')
         .insert({ user_id: data.user.id, full_name: fullName, phone })
-      if (profileError) return { error: friendlyAuthError(profileError.message) }
+      if (profileError) return { error: friendlyAuthError(profileError.message, lang) }
       await loadProfileAndRole(data.user)
       return {}
     }
@@ -133,14 +139,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Email confirmation required: remember the details and finish setup on first sign-in.
     sessionStorage.setItem(PENDING_PROFILE_KEY, JSON.stringify({ fullName, phone }))
     return { needsEmailConfirmation: true }
-  }, [loadProfileAndRole])
+  }, [loadProfileAndRole, lang])
 
   const signInCustomer = useCallback(async (email: string, password: string): Promise<AuthResult> => {
-    if (!supabase) return { error: 'غير متصل بقاعدة البيانات بعد.' }
+    if (!supabase) return { error: notConnectedError(lang) }
     const { error } = await supabase.auth.signInWithPassword({ email, password })
-    if (error) return { error: friendlyAuthError(error.message) }
+    if (error) return { error: friendlyAuthError(error.message, lang) }
     return {}
-  }, [])
+  }, [lang])
 
   const signInAdmin = useCallback(async (username: string, password: string): Promise<AuthResult> => {
     if (!supabase) return { error: 'Not connected to a database yet.' }

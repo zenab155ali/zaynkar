@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react'
 import { ChevronLeft, ChevronRight, Layers, ShoppingBag, ShoppingCart, X } from 'lucide-react'
 import { Dialog } from '@/components/ui/Dialog'
+import { useLanguage } from '@/context/LanguageContext'
 import { useSelections } from '@/context/SelectionsContext'
 import { useToast } from '@/context/ToastContext'
 import type { CatalogProduct } from '@/types/catalog'
@@ -27,6 +28,8 @@ function galleryImages(product: CatalogProduct): string[] {
 const SWIPE_THRESHOLD = 40
 
 export function ProductCardMedia({ product }: { product: CatalogProduct }) {
+  const { t, pick } = useLanguage()
+  const productName = pick(product.name, product.nameHe)
   const images = galleryImages(product)
   const [index, setIndex] = useState(0)
   const [colorsOpen, setColorsOpen] = useState(false)
@@ -44,8 +47,8 @@ export function ProductCardMedia({ product }: { product: CatalogProduct }) {
       setQaSizeError(true)
       return
     }
-    add({ productId: product.id, size: qaSize ?? 'بدون مقاس', colorName: qaColor || 'غير محدد', quantity: 1 })
-    toast({ title: 'أُضيف إلى سلة التسوق', description: `${product.name} · ${qaColor} · ${qaSize ?? ''}`, action: { label: 'عرض سلة التسوق', to: '/selections' } })
+    add({ productId: product.id, size: qaSize ?? t('unspecifiedSize'), colorName: qaColor || t('noColorSelected'), quantity: 1 })
+    toast({ title: t('addedToCart'), description: `${productName} · ${qaColor} · ${qaSize ?? ''}`, action: { label: t('viewCart'), to: '/selections' } })
     setQuickAddOpen(false)
     setQaSize(null)
     setQaSizeError(false)
@@ -98,16 +101,18 @@ export function ProductCardMedia({ product }: { product: CatalogProduct }) {
             e.stopPropagation()
             setColorsOpen(true)
           }}
-          aria-label={`عرض كل الألوان (${product.colors.length})`}
+          aria-label={`${t('viewAllColors')} (${product.colors.length})`}
           className="absolute start-2 top-2 flex items-center gap-1 rounded-full bg-ivory/90 px-2 py-1 text-[0.625rem] font-medium text-ink shadow-sm transition-colors hover:bg-ivory"
         >
           <Layers size={11} aria-hidden="true" /> {product.colors.length}
         </button>
       )}
 
-      <Dialog open={colorsOpen} onClose={() => setColorsOpen(false)} label={`ألوان ${product.name}`} variant="center">
+      <Dialog open={colorsOpen} onClose={() => setColorsOpen(false)} label={`${productName} ${t('availableColors')}`} variant="center">
         <div className="flex h-14 items-center justify-between border-b border-line px-4">
-          <h2 className="text-sm font-medium">{product.name} — الألوان المتوفرة</h2>
+          <h2 className="text-sm font-medium">
+            {productName} — {t('availableColors')}
+          </h2>
           <button
             type="button"
             onClick={(e) => {
@@ -115,7 +120,7 @@ export function ProductCardMedia({ product }: { product: CatalogProduct }) {
               e.stopPropagation()
               setColorsOpen(false)
             }}
-            aria-label="إغلاق"
+            aria-label={t('close')}
             className="-me-2 grid h-10 w-10 place-items-center hover:bg-sand"
           >
             <X size={18} />
@@ -140,7 +145,7 @@ export function ProductCardMedia({ product }: { product: CatalogProduct }) {
                 <div className="relative aspect-[3/4] overflow-hidden bg-sand">
                   {photo && <img src={photo} alt={c.colorName} className="absolute inset-0 h-full w-full object-cover transition-transform group-hover:scale-[1.03]" />}
                 </div>
-                <p className="mt-1.5 text-xs">{c.colorName}</p>
+                <p className="mt-1.5 text-xs">{pick(c.colorName, c.colorNameHe)}</p>
               </button>
             )
           })}
@@ -154,15 +159,15 @@ export function ProductCardMedia({ product }: { product: CatalogProduct }) {
           e.stopPropagation()
           setQuickAddOpen(true)
         }}
-        aria-label={`أضيفي ${product.name} إلى السلة`}
+        aria-label={`${t('addItemToCart')} ${productName} ${t('toCart')}`}
         className="absolute bottom-2 start-2 grid h-9 w-9 place-items-center rounded-full bg-ink text-ivory shadow-sm transition-colors hover:bg-mocha"
       >
         <ShoppingCart size={16} aria-hidden="true" />
       </button>
 
-      <Dialog open={quickAddOpen} onClose={() => setQuickAddOpen(false)} label={`إضافة ${product.name} إلى السلة`} variant="center">
+      <Dialog open={quickAddOpen} onClose={() => setQuickAddOpen(false)} label={`${t('addItemToCart')} ${productName} ${t('toCart')}`} variant="center">
         <div className="flex h-14 items-center justify-between border-b border-line px-4">
-          <h2 className="text-sm font-medium">{product.name}</h2>
+          <h2 className="text-sm font-medium">{productName}</h2>
           <button
             type="button"
             onClick={(e) => {
@@ -170,7 +175,7 @@ export function ProductCardMedia({ product }: { product: CatalogProduct }) {
               e.stopPropagation()
               setQuickAddOpen(false)
             }}
-            aria-label="إغلاق"
+            aria-label={t('close')}
             className="-me-2 grid h-10 w-10 place-items-center hover:bg-sand"
           >
             <X size={18} />
@@ -180,7 +185,7 @@ export function ProductCardMedia({ product }: { product: CatalogProduct }) {
           {product.colors.length > 0 && (
             <div className="mb-4">
               <p className="mb-2 text-sm">
-                اللون: <span className="font-medium">{qaColor}</span>
+                {t('color')}: <span className="font-medium">{pick(qaColor, product.colors.find((c) => c.colorName === qaColor)?.colorNameHe)}</span>
               </p>
               <div className="flex flex-wrap gap-2">
                 {product.colors.map((c) => (
@@ -194,7 +199,7 @@ export function ProductCardMedia({ product }: { product: CatalogProduct }) {
                     }}
                     className={`border px-3.5 py-2 text-sm transition-colors ${qaColor === c.colorName ? 'border-ink bg-ink text-ivory' : 'border-line bg-white hover:border-ink'}`}
                   >
-                    {c.colorName}
+                    {pick(c.colorName, c.colorNameHe)}
                   </button>
                 ))}
               </div>
@@ -202,7 +207,9 @@ export function ProductCardMedia({ product }: { product: CatalogProduct }) {
           )}
           {product.sizes.length > 0 && (
             <div className="mb-4">
-              <p className="mb-2 text-sm">المقاس: {qaSize ?? <span className="text-muted">اختاري مقاسًا</span>}</p>
+              <p className="mb-2 text-sm">
+                {t('size')}: {qaSize ?? <span className="text-muted">{t('chooseSize')}</span>}
+              </p>
               <div className={`flex flex-wrap gap-2 ${qaSizeError && !qaSize ? 'outline outline-1 outline-offset-4 outline-sale' : ''}`}>
                 {product.sizes.map((s) => (
                   <button
@@ -231,7 +238,7 @@ export function ProductCardMedia({ product }: { product: CatalogProduct }) {
             }}
             className="btn btn-primary mt-2 !h-12 w-full"
           >
-            <ShoppingBag size={16} aria-hidden="true" /> أضيفي إلى سلة التسوق
+            <ShoppingBag size={16} aria-hidden="true" /> {t('addToCart')}
           </button>
         </div>
       </Dialog>
@@ -245,7 +252,7 @@ export function ProductCardMedia({ product }: { product: CatalogProduct }) {
               e.stopPropagation()
               go(-1)
             }}
-            aria-label="الصورة السابقة"
+            aria-label={t('previousImage')}
             className="absolute left-1 top-1/2 hidden h-7 w-7 -translate-y-1/2 place-items-center rounded-full bg-ivory/90 text-ink opacity-0 shadow-sm transition-opacity group-hover:opacity-100 sm:grid"
           >
             <ChevronLeft size={14} />
@@ -257,7 +264,7 @@ export function ProductCardMedia({ product }: { product: CatalogProduct }) {
               e.stopPropagation()
               go(1)
             }}
-            aria-label="الصورة التالية"
+            aria-label={t('nextImage')}
             className="absolute right-1 top-1/2 hidden h-7 w-7 -translate-y-1/2 place-items-center rounded-full bg-ivory/90 text-ink opacity-0 shadow-sm transition-opacity group-hover:opacity-100 sm:grid"
           >
             <ChevronRight size={14} />

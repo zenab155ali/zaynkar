@@ -6,6 +6,7 @@ import { AuthProvider } from '@/context/AuthContext'
 import { CartProvider } from '@/context/CartContext'
 import { CurrencyProvider } from '@/context/CurrencyContext'
 import { FavoritesProvider } from '@/context/FavoritesContext'
+import { LanguageProvider } from '@/context/LanguageContext'
 import { LikesProvider } from '@/context/LikesContext'
 import { ProductsProvider } from '@/context/ProductsContext'
 import { SelectionsProvider } from '@/context/SelectionsContext'
@@ -21,25 +22,27 @@ const basename = import.meta.env.BASE_URL.replace(/\/$/, '') || '/'
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <BrowserRouter basename={basename}>
-      <CurrencyProvider>
-        <ToastProvider>
-          <AuthProvider>
-            <ProductsProvider>
-              <LikesProvider>
-                <SelectionsProvider>
-                  <FavoritesProvider>
-                    <CartProvider>
-                      <UIProvider>
-                        <App />
-                      </UIProvider>
-                    </CartProvider>
-                  </FavoritesProvider>
-                </SelectionsProvider>
-              </LikesProvider>
-            </ProductsProvider>
-          </AuthProvider>
-        </ToastProvider>
-      </CurrencyProvider>
+      <LanguageProvider>
+        <CurrencyProvider>
+          <ToastProvider>
+            <AuthProvider>
+              <ProductsProvider>
+                <LikesProvider>
+                  <SelectionsProvider>
+                    <FavoritesProvider>
+                      <CartProvider>
+                        <UIProvider>
+                          <App />
+                        </UIProvider>
+                      </CartProvider>
+                    </FavoritesProvider>
+                  </SelectionsProvider>
+                </LikesProvider>
+              </ProductsProvider>
+            </AuthProvider>
+          </ToastProvider>
+        </CurrencyProvider>
+      </LanguageProvider>
     </BrowserRouter>
   </StrictMode>,
 )

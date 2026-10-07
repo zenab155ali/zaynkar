@@ -1,10 +1,12 @@
 import { Link } from 'react-router-dom'
 import { SmartImage } from '@/components/ui/SmartImage'
+import { useLanguage } from '@/context/LanguageContext'
 import { keyImage } from '@/utils/images'
 
 const HERO_IMAGE = keyImage('skyCoat')
 
 export function Hero() {
+  const { t } = useLanguage()
   return (
     <section aria-labelledby="hero-heading" className="bg-sand">
       <div className="mx-auto grid max-w-[1680px] lg:grid-cols-12">
@@ -21,7 +23,8 @@ export function Hero() {
         </div>
 
         <div className="order-2 flex flex-col justify-center px-4 py-12 sm:px-8 sm:py-16 lg:order-1 lg:col-span-5 lg:px-12 lg:py-20 xl:pe-14">
-          <p className="eyebrow mb-5">عالم التسوق</p>
+          <p className="eyebrow mb-5">{t('heroEyebrow')}</p>
+          {/* Headline and subheading stay in English in both languages, per the original brand design. */}
           <h1 id="hero-heading" className="display text-[3.25rem] sm:text-7xl xl:text-[5.5rem]" dir="ltr">
             Your Style.
             <br />
@@ -33,7 +36,7 @@ export function Hero() {
 
           <div className="mt-9">
             <Link to="/store" className="btn !bg-mocha !border-mocha text-ivory hover:!bg-ink">
-              اضغطي هنا للتسوق
+              {t('heroButton')}
             </Link>
           </div>
         </div>

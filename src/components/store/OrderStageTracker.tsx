@@ -1,7 +1,10 @@
 import { Check } from 'lucide-react'
-import { REQUEST_STAGES, REQUEST_STAGE_LABELS, type RequestStage } from '@/types/catalog'
+import { useLanguage } from '@/context/LanguageContext'
+import { REQUEST_STAGES, REQUEST_STAGE_LABELS, REQUEST_STAGE_LABELS_HE, type RequestStage } from '@/types/catalog'
 
 export function OrderStageTracker({ stage }: { stage: RequestStage }) {
+  const { t, lang } = useLanguage()
+  const labels = lang === 'he' ? REQUEST_STAGE_LABELS_HE : REQUEST_STAGE_LABELS
   const currentIndex = REQUEST_STAGES.indexOf(stage)
 
   return (
@@ -22,8 +25,8 @@ export function OrderStageTracker({ stage }: { stage: RequestStage }) {
               {i < REQUEST_STAGES.length - 1 && <span className={`w-px flex-1 ${done ? 'bg-ink' : 'bg-line'}`} style={{ minHeight: '1.25rem' }} />}
             </div>
             <p className={`pb-5 text-sm ${active ? 'font-medium text-ink' : done ? 'text-ink' : 'text-muted'}`}>
-              {REQUEST_STAGE_LABELS[s]}
-              {active && <span className="ms-2 text-xs text-muted">(المرحلة الحالية)</span>}
+              {labels[s]}
+              {active && <span className="ms-2 text-xs text-muted">{t('currentStage')}</span>}
             </p>
           </li>
         )

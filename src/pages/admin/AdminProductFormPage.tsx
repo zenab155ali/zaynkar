@@ -7,6 +7,7 @@ import { TagInput } from '@/components/admin/TagInput'
 import { TextField } from '@/components/ui/TextField'
 import { useProducts } from '@/context/ProductsContext'
 import { supabase } from '@/lib/supabase'
+import { translateToHebrew } from '@/lib/translate'
 import { uploadProductMedia, validateMediaFile } from '@/lib/uploadProductMedia'
 import { draftKeyForNewProduct, draftKeyForProduct } from '@/lib/productDrafts'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
@@ -133,7 +134,12 @@ export default function AdminProductFormPage() {
   const addCategory = async () => {
     const trimmed = newCategoryName.trim()
     if (!trimmed || !supabase) return
-    const { data, error: insertError } = await supabase.from('categories').insert({ name: trimmed, sort_order: categories.length }).select('id').single()
+    const nameHe = await translateToHebrew(trimmed)
+    const { data, error: insertError } = await supabase
+      .from('categories')
+      .insert({ name: trimmed, name_he: nameHe, sort_order: categories.length })
+      .select('id')
+      .single()
     if (insertError) {
       setError(insertError.message)
       return
@@ -155,13 +161,25 @@ export default function AdminProductFormPage() {
     setSaving(true)
     setError(null)
 
-    const cleanColors = colors.filter((c) => c.colorName.trim()).map((c) => ({ color_name: c.colorName.trim(), photo_url: c.photoUrl }))
+    const trimmedName = name.trim()
+    const trimmedDescription = description.trim()
+    const cleanColorNames = colors.filter((c) => c.colorName.trim())
     const cleanMedia = media.filter((m) => m.url)
 
+    // Translated automatically on every save — best-effort (a failed lookup just falls back to Arabic on display).
+    const [nameHe, descriptionHe, colorNamesHe] = await Promise.all([
+      translateToHebrew(trimmedName),
+      trimmedDescription ? translateToHebrew(trimmedDescription) : Promise.resolve(null),
+      Promise.all(cleanColorNames.map((c) => translateToHebrew(c.colorName.trim()))),
+    ])
+    const cleanColors = cleanColorNames.map((c, i) => ({ color_name: c.colorName.trim(), color_name_he: colorNamesHe[i], photo_url: c.photoUrl }))
+
     const payload = {
-      name: name.trim(),
+      name: trimmedName,
+      name_he: nameHe,
       category_id: effectiveCategoryId,
-      description: description.trim(),
+      description: trimmedDescription,
+      description_he: descriptionHe,
       price: Number(price),
       sizes,
       is_active: isActive,

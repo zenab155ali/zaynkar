@@ -7,17 +7,12 @@ import { RequireSupabase } from '@/components/ui/RequireSupabase'
 import { LikeButton } from '@/components/store/LikeButton'
 import { ProductCardMedia } from '@/components/store/ProductCardMedia'
 import { useCurrency } from '@/context/CurrencyContext'
+import { useLanguage } from '@/context/LanguageContext'
 import { useProducts } from '@/context/ProductsContext'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import type { CatalogProduct } from '@/types/catalog'
 
 type SortKey = 'recent' | 'picked' | 'price-asc' | 'price-desc'
-const SORT_OPTIONS: { value: SortKey; label: string }[] = [
-  { value: 'recent', label: 'الأحدث' },
-  { value: 'picked', label: 'الأكثر اختيارًا' },
-  { value: 'price-asc', label: 'السعر: من الأقل للأعلى' },
-  { value: 'price-desc', label: 'السعر: من الأعلى للأقل' },
-]
 
 interface Filters {
   sizes: string[]
@@ -46,6 +41,7 @@ function sortProducts(list: CatalogProduct[], sort: SortKey): CatalogProduct[] {
 }
 
 function FilterControls({ sizes, colors, filters, onChange }: { sizes: string[]; colors: string[]; filters: Filters; onChange: (f: Filters) => void }) {
+  const { t } = useLanguage()
   const toggle = (key: 'sizes' | 'colors', value: string) => {
     const list = filters[key]
     onChange({ ...filters, [key]: list.includes(value) ? list.filter((v) => v !== value) : [...list, value] })
@@ -55,7 +51,7 @@ function FilterControls({ sizes, colors, filters, onChange }: { sizes: string[];
     <div className="space-y-6">
       {sizes.length > 0 && (
         <div>
-          <p className="mb-2 text-xs font-medium uppercase tracking-wider text-muted">المقاس</p>
+          <p className="mb-2 text-xs font-medium uppercase tracking-wider text-muted">{t('size')}</p>
           <div className="flex flex-wrap gap-2">
             {sizes.map((s) => (
               <button
@@ -73,7 +69,7 @@ function FilterControls({ sizes, colors, filters, onChange }: { sizes: string[];
       )}
       {colors.length > 0 && (
         <div>
-          <p className="mb-2 text-xs font-medium uppercase tracking-wider text-muted">اللون</p>
+          <p className="mb-2 text-xs font-medium uppercase tracking-wider text-muted">{t('color')}</p>
           <div className="flex flex-wrap gap-2">
             {colors.map((c) => (
               <button
@@ -90,13 +86,13 @@ function FilterControls({ sizes, colors, filters, onChange }: { sizes: string[];
         </div>
       )}
       <div>
-        <p className="mb-2 text-xs font-medium uppercase tracking-wider text-muted">السعر</p>
+        <p className="mb-2 text-xs font-medium uppercase tracking-wider text-muted">{t('price')}</p>
         <div className="flex items-center gap-2">
           <input
             type="number"
             min="0"
             inputMode="numeric"
-            placeholder="الأدنى"
+            placeholder={t('priceMin')}
             value={filters.priceMin ?? ''}
             onChange={(e) => onChange({ ...filters, priceMin: e.target.value ? Number(e.target.value) : null })}
             className="field !h-10"
@@ -106,7 +102,7 @@ function FilterControls({ sizes, colors, filters, onChange }: { sizes: string[];
             type="number"
             min="0"
             inputMode="numeric"
-            placeholder="الأعلى"
+            placeholder={t('priceMax')}
             value={filters.priceMax ?? ''}
             onChange={(e) => onChange({ ...filters, priceMax: e.target.value ? Number(e.target.value) : null })}
             className="field !h-10"
@@ -119,6 +115,7 @@ function FilterControls({ sizes, colors, filters, onChange }: { sizes: string[];
 
 function StoreGrid() {
   const { format } = useCurrency()
+  const { t, pick } = useLanguage()
   const { loading, error, products, categories } = useProducts()
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
@@ -130,6 +127,13 @@ function StoreGrid() {
   const [filters, setFilters] = useState<Filters>(EMPTY_FILTERS)
   const [drawerOpen, setDrawerOpen] = useState(false)
   const restoredScrollRef = useRef(false)
+
+  const SORT_OPTIONS: { value: SortKey; label: string }[] = [
+    { value: 'recent', label: t('sortRecent') },
+    { value: 'picked', label: t('sortPicked') },
+    { value: 'price-asc', label: t('sortPriceAsc') },
+    { value: 'price-desc', label: t('sortPriceDesc') },
+  ]
 
   useEffect(() => {
     const onScroll = () => {
@@ -180,7 +184,7 @@ function StoreGrid() {
     if (match) {
       navigate(`/store/${match.code}`)
     } else {
-      setCodeError(`لا يوجد منتج بالرمز "${code.trim()}".`)
+      setCodeError(`${t('noProductWithCode')} "${code.trim()}".`)
     }
   }
 
@@ -188,11 +192,11 @@ function StoreGrid() {
     <div className="container-page py-8">
       <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="eyebrow mb-2">اختاري إطلالتك ✨</p>
-          <h1 className="display text-4xl sm:text-5xl">{selectedCategory ? selectedCategory.name : 'الفساتين'}</h1>
+          <p className="eyebrow mb-2">{t('chooseYourLook')}</p>
+          <h1 className="display text-4xl sm:text-5xl">{selectedCategory ? pick(selectedCategory.name, selectedCategory.nameHe) : t('dressesTitle')}</h1>
           {selectedCategory && (
             <button type="button" onClick={() => setSearchParams({})} className="mt-1 text-xs text-muted underline underline-offset-2">
-              عرض كل الفئات
+              {t('showAllCategories')}
             </button>
           )}
         </div>
@@ -205,12 +209,12 @@ function StoreGrid() {
                 setCode(e.target.value)
                 setCodeError(null)
               }}
-              placeholder="ابحثي برمز المنتج"
+              placeholder={t('searchByCode')}
               className="field !ps-9"
             />
           </div>
           <button type="submit" className="btn btn-outline btn-sm shrink-0">
-            بحث
+            {t('search')}
           </button>
         </form>
       </div>
@@ -220,9 +224,12 @@ function StoreGrid() {
         <div className="mb-6 flex items-center justify-between gap-3 border-y border-line py-3">
           <button type="button" onClick={() => setDrawerOpen(true)} className="inline-flex h-10 items-center gap-2 border border-ink px-4 text-xs font-medium uppercase tracking-wider lg:hidden">
             <SlidersHorizontal size={15} aria-hidden="true" />
-            الفلاتر{activeFilterCount > 0 && ` (${activeFilterCount})`}
+            {t('filters')}
+            {activeFilterCount > 0 && ` (${activeFilterCount})`}
           </button>
-          <p className="hidden text-sm text-muted lg:block">{filtered.length} قطعة</p>
+          <p className="hidden text-sm text-muted lg:block">
+            {filtered.length} {t('pieces')}
+          </p>
           <select value={sort} onChange={(e) => setSort(e.target.value as SortKey)} className="field !h-10 !w-auto pe-8 text-sm">
             {SORT_OPTIONS.map((o) => (
               <option key={o.value} value={o.value}>
@@ -234,11 +241,11 @@ function StoreGrid() {
       )}
 
       {loading ? (
-        <p className="text-sm text-muted">جارٍ التحميل…</p>
+        <p className="text-sm text-muted">{t('loading')}</p>
       ) : error ? (
         <p className="text-sm text-sale">{error}</p>
       ) : active.length === 0 ? (
-        <EmptyState icon={<Shirt size={26} strokeWidth={1.3} />} title="لا توجد منتجات بعد" description="تُضاف فساتين جديدة بانتظام — تابعينا قريبًا." />
+        <EmptyState icon={<Shirt size={26} strokeWidth={1.3} />} title={t('noProductsYet')} description={t('newDressesSoon')} />
       ) : (
         <div className="gap-10 lg:grid lg:grid-cols-[14rem_1fr]">
           <aside className="hidden lg:block">
@@ -246,9 +253,9 @@ function StoreGrid() {
           </aside>
           <div>
             {filtered.length === 0 ? (
-              <EmptyState icon={<SlidersHorizontal size={24} strokeWidth={1.3} />} title="لا توجد نتائج" description="جربي إزالة أحد الفلاتر.">
+              <EmptyState icon={<SlidersHorizontal size={24} strokeWidth={1.3} />} title={t('noResults')} description={t('tryRemovingFilter')}>
                 <button type="button" onClick={() => setFilters(EMPTY_FILTERS)} className="btn btn-outline">
-                  مسح الفلاتر
+                  {t('clearFilters')}
                 </button>
               </EmptyState>
             ) : (
@@ -259,12 +266,12 @@ function StoreGrid() {
                       <Link to={`/store/${p.code}`} className="block">
                         <ProductCardMedia product={p} />
                       </Link>
-                      <LikeButton productId={p.id} productName={p.name} className="absolute end-2 top-2" />
+                      <LikeButton productId={p.id} productName={pick(p.name, p.nameHe)} className="absolute end-2 top-2" />
                       <Link to={`/store/${p.code}`} className="mt-3 block">
                         <p className="font-mono text-[0.6875rem] text-muted" dir="ltr">
                           {p.code}
                         </p>
-                        <h2 className="text-sm leading-snug group-hover:underline">{p.name}</h2>
+                        <h2 className="text-sm leading-snug group-hover:underline">{pick(p.name, p.nameHe)}</h2>
                         <p className="mt-1 text-sm font-medium">{format(p.price)}</p>
                       </Link>
                     </article>
@@ -276,11 +283,11 @@ function StoreGrid() {
         </div>
       )}
 
-      <Dialog open={drawerOpen} onClose={() => setDrawerOpen(false)} label="الفلاتر" variant="right">
+      <Dialog open={drawerOpen} onClose={() => setDrawerOpen(false)} label={t('filters')} variant="right">
         <div className="flex h-full flex-col">
           <div className="flex h-14 shrink-0 items-center justify-between border-b border-line px-4">
-            <h2 className="display text-2xl">الفلاتر</h2>
-            <button type="button" onClick={() => setDrawerOpen(false)} aria-label="إغلاق الفلاتر" className="-me-2 grid h-11 w-11 place-items-center hover:bg-sand">
+            <h2 className="display text-2xl">{t('filters')}</h2>
+            <button type="button" onClick={() => setDrawerOpen(false)} aria-label={t('closeFilters')} className="-me-2 grid h-11 w-11 place-items-center hover:bg-sand">
               <X size={22} />
             </button>
           </div>
@@ -289,10 +296,10 @@ function StoreGrid() {
           </div>
           <div className="flex shrink-0 gap-3 border-t border-line bg-ivory p-4">
             <button type="button" onClick={() => setFilters(EMPTY_FILTERS)} disabled={activeFilterCount === 0} className="btn btn-outline flex-1">
-              مسح الكل
+              {t('clearAll')}
             </button>
             <button type="button" onClick={() => setDrawerOpen(false)} className="btn btn-primary flex-[1.4]">
-              عرض {filtered.length} نتيجة
+              {t('showResults')} {filtered.length} {t('results')}
             </button>
           </div>
         </div>
@@ -302,7 +309,8 @@ function StoreGrid() {
 }
 
 export default function StorePage() {
-  useDocumentTitle('الفساتين')
+  const { t } = useLanguage()
+  useDocumentTitle(t('dressesTitle'))
   return (
     <RequireSupabase>
       <StoreGrid />

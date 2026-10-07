@@ -7,6 +7,8 @@
 export interface Category {
   id: string
   name: string
+  /** Auto-translated when the category is created; null until then, or if translation failed. */
+  nameHe: string | null
   sortOrder: number
   photoUrl: string | null
 }
@@ -14,6 +16,7 @@ export interface Category {
 export interface ProductColor {
   id: string
   colorName: string
+  colorNameHe: string | null
   /** null = no photo was uploaded for this color; fall back to the product's general photos. */
   photoUrl: string | null
   sortOrder: number
@@ -33,9 +36,11 @@ export interface CatalogProduct {
   /** Unique, auto-generated (e.g. "D-0001"). Shown to customers and searchable. */
   code: string
   name: string
+  nameHe: string | null
   categoryId: string
   categoryName: string
   description: string
+  descriptionHe: string | null
   price: number
   sizes: string[]
   isActive: boolean
@@ -72,6 +77,15 @@ export const REQUEST_STAGE_LABELS: Record<RequestStage, string> = {
   arrived_country: 'وصل إلى بلدكِ',
   at_delivery_company: 'وصل لشركة التوصيل',
   delivered: 'تم التوصيل للمنزل',
+}
+
+export const REQUEST_STAGE_LABELS_HE: Record<RequestStage, string> = {
+  products_selected: 'המוצרים נבחרו',
+  confirmed: 'ההזמנה אושרה',
+  shipped: 'נשלח',
+  arrived_country: 'הגיע לארצך',
+  at_delivery_company: 'הגיע לחברת המשלוחים',
+  delivered: 'נמסר לבית',
 }
 
 export interface RequestItem {

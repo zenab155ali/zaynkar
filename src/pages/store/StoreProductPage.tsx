@@ -6,6 +6,7 @@ import { RequireSupabase } from '@/components/ui/RequireSupabase'
 import { LikeButton } from '@/components/store/LikeButton'
 import { StoreMediaGallery } from '@/components/store/StoreMediaGallery'
 import { useCurrency } from '@/context/CurrencyContext'
+import { useLanguage } from '@/context/LanguageContext'
 import { useProducts } from '@/context/ProductsContext'
 import { useSelections } from '@/context/SelectionsContext'
 import { useToast } from '@/context/ToastContext'
@@ -23,11 +24,13 @@ function ProductView() {
   const { getByCode } = useProducts()
   const product = getByCode(code)
   const { format } = useCurrency()
+  const { t, pick } = useLanguage()
   const { add, remove } = useSelections()
   const { toast } = useToast()
   const navigate = useNavigate()
   const location = useLocation()
-  useDocumentTitle(product?.name)
+  const productName = product ? pick(product.name, product.nameHe) : undefined
+  useDocumentTitle(productName)
 
   // Arriving from "سلة التسوق" to tweak an already-picked item: pre-select what was
   // chosen before, and replace that exact cart line instead of adding a second one.
@@ -42,7 +45,7 @@ function ProductView() {
     return selectedColor?.photoUrl ? [{ url: selectedColor.photoUrl, type: 'image' as const }, ...product.media] : product.media
   }, [product, selectedColor])
 
-  if (!product) return <NotFoundPage />
+  if (!product || !productName) return <NotFoundPage />
 
   const onAdd = () => {
     if (!size) {
@@ -51,22 +54,22 @@ function ProductView() {
     }
     if (editState?.editLineId) {
       remove(editState.editLineId)
-      add({ productId: product.id, size, colorName: colorName || 'غير محدد', quantity: 1 })
-      toast({ title: 'تم تحديث سلة التسوق', description: `${product.name} · ${colorName} · ${size}` })
+      add({ productId: product.id, size, colorName: colorName || t('noColorSelected'), quantity: 1 })
+      toast({ title: t('cartUpdated'), description: `${productName} · ${colorName} · ${size}` })
       navigate('/selections')
       return
     }
-    add({ productId: product.id, size, colorName: colorName || 'غير محدد', quantity: 1 })
-    toast({ title: 'أُضيف إلى سلة التسوق', description: `${product.name} · ${colorName} · ${size}`, action: { label: 'عرض سلة التسوق', to: '/selections' } })
+    add({ productId: product.id, size, colorName: colorName || t('noColorSelected'), quantity: 1 })
+    toast({ title: t('addedToCart'), description: `${productName} · ${colorName} · ${size}`, action: { label: t('viewCart'), to: '/selections' } })
   }
 
   return (
     <div className="container-page py-6">
-      <Breadcrumbs items={[{ label: 'الرئيسية', to: '/' }, { label: 'الفساتين', to: '/store' }, { label: product.name }]} />
+      <Breadcrumbs items={[{ label: t('home'), to: '/' }, { label: t('dressesTitle'), to: '/store' }, { label: productName }]} />
 
       <div className="mt-5 grid gap-10 lg:grid-cols-12">
         <div className="lg:col-span-7">
-          <StoreMediaGallery media={media} name={product.name} />
+          <StoreMediaGallery media={media} name={productName} />
         </div>
         <div className="lg:col-span-5">
           <div className="flex items-start justify-between gap-3">
@@ -74,18 +77,20 @@ function ProductView() {
               <p className="font-mono text-xs text-muted" dir="ltr">
                 {product.code}
               </p>
-              <h1 className="display mt-1 text-3xl sm:text-4xl">{product.name}</h1>
+              <h1 className="display mt-1 text-3xl sm:text-4xl">{productName}</h1>
             </div>
-            <LikeButton productId={product.id} productName={product.name} variant="inline" className="shrink-0" />
+            <LikeButton productId={product.id} productName={productName} variant="inline" className="shrink-0" />
           </div>
           <p className="mt-3 text-xl font-medium">{format(product.price)}</p>
 
-          {product.description && <p className="mt-4 whitespace-pre-line text-sm leading-relaxed text-muted">{product.description}</p>}
+          {product.description && (
+            <p className="mt-4 whitespace-pre-line text-sm leading-relaxed text-muted">{pick(product.description, product.descriptionHe)}</p>
+          )}
 
           {product.colors.length > 0 && (
             <div className="mt-6">
               <p className="mb-2 text-sm">
-                اللون: <span className="font-medium">{colorName}</span>
+                {t('color')}: <span className="font-medium">{pick(colorName, product.colors.find((c) => c.colorName === colorName)?.colorNameHe)}</span>
               </p>
               <div className="flex flex-wrap gap-2">
                 {product.colors.map((c) => (
@@ -95,7 +100,7 @@ function ProductView() {
                     onClick={() => setColorName(c.colorName)}
                     className={`border px-3.5 py-2 text-sm transition-colors ${colorName === c.colorName ? 'border-ink bg-ink text-ivory' : 'border-line bg-white hover:border-ink'}`}
                   >
-                    {c.colorName}
+                    {pick(c.colorName, c.colorNameHe)}
                   </button>
                 ))}
               </div>
@@ -104,7 +109,9 @@ function ProductView() {
 
           {product.sizes.length > 0 && (
             <div className="mt-6">
-              <p className="mb-2 text-sm">المقاس: {size ?? <span className="text-muted">اختاري مقاسًا</span>}</p>
+              <p className="mb-2 text-sm">
+                {t('size')}: {size ?? <span className="text-muted">{t('chooseSize')}</span>}
+              </p>
               <div className={`flex flex-wrap gap-2 ${sizeError && !size ? 'outline outline-1 outline-offset-4 outline-sale' : ''}`}>
                 {product.sizes.map((s) => (
                   <button
@@ -124,10 +131,10 @@ function ProductView() {
           )}
 
           <button type="button" onClick={onAdd} className="btn btn-primary mt-8 !h-14 w-full">
-            <ShoppingBag size={18} aria-hidden="true" /> {editState?.editLineId ? 'تحديث سلة التسوق' : 'أضيفي إلى سلة التسوق'}
+            <ShoppingBag size={18} aria-hidden="true" /> {editState?.editLineId ? t('updateCart') : t('addToCart')}
           </button>
           <button type="button" onClick={() => navigate('/selections')} className="mt-3 w-full text-center text-xs underline underline-offset-4">
-            عرض سلة التسوق
+            {t('viewCart')}
           </button>
         </div>
       </div>
