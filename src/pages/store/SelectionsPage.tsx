@@ -4,12 +4,20 @@ import { ShoppingBag, Trash2 } from 'lucide-react'
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { RequireSupabase } from '@/components/ui/RequireSupabase'
+import { SmartImage } from '@/components/ui/SmartImage'
 import { QuantityStepper } from '@/components/product/QuantityStepper'
 import { useAuth } from '@/context/AuthContext'
 import { useCurrency } from '@/context/CurrencyContext'
-import { useSelections } from '@/context/SelectionsContext'
+import { useSelections, type SelectionLineDetailed } from '@/context/SelectionsContext'
 import { supabase } from '@/lib/supabase'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
+
+/** The photo for the SPECIFIC color a line has — not just a generic product shot — so the
+ * customer can see at a glance it's really the item/color they picked. */
+function linePhoto(line: SelectionLineDetailed): string | null {
+  const color = line.product.colors.find((c) => c.colorName === line.colorName)
+  return color?.photoUrl ?? line.product.media.find((m) => m.type === 'image')?.url ?? null
+}
 
 function SelectionsView() {
   useDocumentTitle('سلة التسوق')
@@ -66,12 +74,6 @@ function SelectionsView() {
       return
     }
 
-    const colorPhoto = (productId: string, colorName: string) => {
-      const line = lines.find((l) => l.productId === productId && l.colorName === colorName)
-      const color = line?.product.colors.find((c) => c.colorName === colorName)
-      return color?.photoUrl ?? line?.product.media.find((m) => m.type === 'image')?.url ?? null
-    }
-
     const { error: itemsError } = await supabase.from('request_items').insert(
       lines.map((l) => ({
         request_id: request.id,
@@ -79,7 +81,7 @@ function SelectionsView() {
         product_code: l.product.code,
         product_name: l.product.name,
         color_name: l.colorName,
-        photo_url: colorPhoto(l.product.id, l.colorName),
+        photo_url: linePhoto(l),
         size: l.size,
         price: l.product.price,
         quantity: l.quantity,
@@ -135,26 +137,35 @@ function SelectionsView() {
       <h1 className="display mt-4 text-4xl">سلة التسوق</h1>
 
       <ul className="mt-6 divide-y divide-line border-y border-line">
-        {lines.map((l) => (
-          <li key={l.id} className="flex gap-4 py-5">
-            <div className="min-w-0 flex-1">
-              <p className="font-mono text-xs text-muted" dir="ltr">
-                {l.product.code}
-              </p>
-              <p className="text-sm font-medium">{l.product.name}</p>
-              <p className="mt-0.5 text-xs text-muted">
-                {l.colorName} · المقاس {l.size}
-              </p>
-              <div className="mt-2 flex items-center gap-3">
-                <QuantityStepper compact value={l.quantity} onChange={(q) => setQuantity(l.id, q)} />
-                <button type="button" onClick={() => remove(l.id)} className="inline-flex items-center gap-1 text-xs text-muted hover:text-sale">
-                  <Trash2 size={13} /> إزالة
-                </button>
+        {lines.map((l) => {
+          const editState = { editLineId: l.id, color: l.colorName, size: l.size }
+          const photo = linePhoto(l)
+          return (
+            <li key={l.id} className="flex gap-4 py-5">
+              <Link to={`/store/${l.product.code}`} state={editState} className="relative h-28 w-24 shrink-0 overflow-hidden bg-sand">
+                {photo && <SmartImage image={{ url: photo }} alt="" widths={[160, 260]} sizes="96px" />}
+              </Link>
+              <div className="min-w-0 flex-1">
+                <Link to={`/store/${l.product.code}`} state={editState} className="block">
+                  <p className="font-mono text-xs text-muted" dir="ltr">
+                    {l.product.code}
+                  </p>
+                  <p className="text-sm font-medium hover:underline">{l.product.name}</p>
+                </Link>
+                <p className="mt-0.5 text-xs text-muted">
+                  {l.colorName} · المقاس {l.size}
+                </p>
+                <div className="mt-2 flex items-center gap-3">
+                  <QuantityStepper compact value={l.quantity} onChange={(q) => setQuantity(l.id, q)} />
+                  <button type="button" onClick={() => remove(l.id)} className="inline-flex items-center gap-1 text-xs text-muted hover:text-sale">
+                    <Trash2 size={13} /> إزالة
+                  </button>
+                </div>
               </div>
-            </div>
-            <p className="shrink-0 text-sm font-medium">{format(l.product.price * l.quantity)}</p>
-          </li>
-        ))}
+              <p className="shrink-0 text-sm font-medium">{format(l.product.price * l.quantity)}</p>
+            </li>
+          )
+        })}
       </ul>
 
       <p className="mt-4 flex justify-between text-base font-medium">

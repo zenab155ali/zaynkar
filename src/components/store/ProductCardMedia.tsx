@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react'
-import { ChevronLeft, ChevronRight, Layers, ShoppingBag, X } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Layers, ShoppingBag, ShoppingCart, X } from 'lucide-react'
 import { Dialog } from '@/components/ui/Dialog'
 import { useSelections } from '@/context/SelectionsContext'
 import { useToast } from '@/context/ToastContext'
@@ -155,9 +155,9 @@ export function ProductCardMedia({ product }: { product: CatalogProduct }) {
           setQuickAddOpen(true)
         }}
         aria-label={`أضيفي ${product.name} إلى السلة`}
-        className="absolute bottom-2 start-2 grid h-8 w-8 place-items-center rounded-full bg-ivory/90 text-ink shadow-sm transition-colors hover:bg-ink hover:text-ivory"
+        className="absolute bottom-2 start-2 grid h-9 w-9 place-items-center rounded-full bg-ink text-ivory shadow-sm transition-colors hover:bg-mocha"
       >
-        <ShoppingBag size={14} aria-hidden="true" />
+        <ShoppingCart size={16} aria-hidden="true" />
       </button>
 
       <Dialog open={quickAddOpen} onClose={() => setQuickAddOpen(false)} label={`إضافة ${product.name} إلى السلة`} variant="center">

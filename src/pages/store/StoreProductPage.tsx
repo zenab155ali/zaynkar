@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { ShoppingBag } from 'lucide-react'
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
 import { RequireSupabase } from '@/components/ui/RequireSupabase'
@@ -12,18 +12,28 @@ import { useToast } from '@/context/ToastContext'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import NotFoundPage from '@/pages/NotFoundPage'
 
+interface EditLineState {
+  editLineId?: string
+  color?: string
+  size?: string
+}
+
 function ProductView() {
   const { code = '' } = useParams()
   const { getByCode } = useProducts()
   const product = getByCode(code)
   const { format } = useCurrency()
-  const { add } = useSelections()
+  const { add, remove } = useSelections()
   const { toast } = useToast()
   const navigate = useNavigate()
+  const location = useLocation()
   useDocumentTitle(product?.name)
 
-  const [colorName, setColorName] = useState(product?.colors[0]?.colorName ?? '')
-  const [size, setSize] = useState<string | null>(null)
+  // Arriving from "سلة التسوق" to tweak an already-picked item: pre-select what was
+  // chosen before, and replace that exact cart line instead of adding a second one.
+  const editState = location.state as EditLineState | null
+  const [colorName, setColorName] = useState(editState?.color ?? product?.colors[0]?.colorName ?? '')
+  const [size, setSize] = useState<string | null>(editState?.size ?? null)
   const [sizeError, setSizeError] = useState(false)
 
   const selectedColor = product?.colors.find((c) => c.colorName === colorName)
@@ -37,6 +47,13 @@ function ProductView() {
   const onAdd = () => {
     if (!size) {
       setSizeError(true)
+      return
+    }
+    if (editState?.editLineId) {
+      remove(editState.editLineId)
+      add({ productId: product.id, size, colorName: colorName || 'غير محدد', quantity: 1 })
+      toast({ title: 'تم تحديث سلة التسوق', description: `${product.name} · ${colorName} · ${size}` })
+      navigate('/selections')
       return
     }
     add({ productId: product.id, size, colorName: colorName || 'غير محدد', quantity: 1 })
@@ -107,7 +124,7 @@ function ProductView() {
           )}
 
           <button type="button" onClick={onAdd} className="btn btn-primary mt-8 !h-14 w-full">
-            <ShoppingBag size={18} aria-hidden="true" /> أضيفي إلى سلة التسوق
+            <ShoppingBag size={18} aria-hidden="true" /> {editState?.editLineId ? 'تحديث سلة التسوق' : 'أضيفي إلى سلة التسوق'}
           </button>
           <button type="button" onClick={() => navigate('/selections')} className="mt-3 w-full text-center text-xs underline underline-offset-4">
             عرض سلة التسوق

@@ -126,7 +126,7 @@ function StoreGrid() {
   const selectedCategory = categoryId ? categories.find((c) => c.id === categoryId) : null
   const [code, setCode] = useState('')
   const [codeError, setCodeError] = useState<string | null>(null)
-  const [sort, setSort] = useState<SortKey>('recent')
+  const [sort, setSort] = useState<SortKey>('price-asc')
   const [filters, setFilters] = useState<Filters>(EMPTY_FILTERS)
   const [drawerOpen, setDrawerOpen] = useState(false)
   const restoredScrollRef = useRef(false)
