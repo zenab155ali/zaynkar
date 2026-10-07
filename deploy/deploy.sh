@@ -58,7 +58,7 @@ cp -r dist-root/. gh-pages-wt/
 mkdir -p "gh-pages-wt/versions/v$VERSION"
 cp -r dist-v/. "gh-pages-wt/versions/v$VERSION/"
 
-python3 - "$VERSION" "$NOTE" <<'PYEOF'
+python - "$VERSION" "$NOTE" <<'PYEOF'
 import sys, re, pathlib
 version, note = sys.argv[1], sys.argv[2]
 p = pathlib.Path("gh-pages-wt/versions/index.html")
@@ -87,7 +87,7 @@ cd "$ROOT"
 git worktree remove gh-pages-wt --force
 rm -rf dist-root dist-v
 
-python3 - "$VERSION" "$NOTE" <<'PYEOF'
+python - "$VERSION" "$NOTE" <<'PYEOF'
 import json, sys, datetime, subprocess
 version, note = int(sys.argv[1]), sys.argv[2]
 sha = subprocess.check_output(["git", "rev-parse", "--short", "HEAD"]).decode().strip()
