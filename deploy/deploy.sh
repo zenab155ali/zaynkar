@@ -5,6 +5,11 @@
 # Run from the repo root, on a clean `main` working tree, with `gh` authenticated.
 set -euo pipefail
 
+# Under Git Bash on Windows, MSYS rewrites any argument that looks like an absolute
+# POSIX path (e.g. "/zaynkar/") into a Windows path (e.g. "C:\Program Files\Git\zaynkar\")
+# before the child process ever sees it — silently corrupting the --base value below.
+export MSYS_NO_PATHCONV=1
+
 VERSION="${1:?Usage: deploy/deploy.sh <version-number> [\"note\"]}"
 NOTE="${2:-}"
 REPO="zenab155ali/zaynkar"
