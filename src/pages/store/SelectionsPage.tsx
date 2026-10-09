@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { ShoppingBag, Trash2 } from 'lucide-react'
+import { Send, ShoppingBag, Trash2 } from 'lucide-react'
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
+import { Dialog } from '@/components/ui/Dialog'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { RequireSupabase } from '@/components/ui/RequireSupabase'
 import { SmartImage } from '@/components/ui/SmartImage'
@@ -12,6 +13,8 @@ import { useLanguage } from '@/context/LanguageContext'
 import { useSelections, type SelectionLineDetailed } from '@/context/SelectionsContext'
 import { supabase } from '@/lib/supabase'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
+
+const INSTAGRAM_URL = 'https://www.instagram.com/zaynkar_fashion'
 
 /** The photo for the SPECIFIC color a line has — not just a generic product shot — so the
  * customer can see at a glance it's really the item/color they picked. */
@@ -36,6 +39,7 @@ function SelectionsView() {
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [guestSubmitted, setGuestSubmitted] = useState(false)
+  const [sentDialogOpen, setSentDialogOpen] = useState(false)
 
   const total = lines.reduce((sum, l) => sum + l.product.price * l.quantity, 0)
   const guestDetailsValid = guestFullName.trim() && guestCountry.trim() && guestPhone.trim()
@@ -96,12 +100,35 @@ function SelectionsView() {
     }
 
     clear()
-    if (user) {
-      navigate('/my-requests')
-    } else {
-      setGuestSubmitted(true)
-    }
+    setSubmitting(false)
+    if (!user) setGuestSubmitted(true)
+    setSentDialogOpen(true)
   }
+
+  const closeSentDialog = () => {
+    setSentDialogOpen(false)
+    if (user) navigate('/my-requests')
+  }
+
+  const sentDialog = (
+    <Dialog open={sentDialogOpen} onClose={closeSentDialog} label={t('listSentTitle')} variant="center">
+      <div className="p-6 text-center">
+        <h2 className="display text-2xl">{t('listSentTitle')}</h2>
+        <p className="mt-3 text-sm leading-relaxed text-muted">{t('listSentInstagramHint')}</p>
+        <a
+          href={INSTAGRAM_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="btn btn-primary mt-6 !h-12 w-full"
+        >
+          <Send size={16} aria-hidden="true" /> {t('messageUsOnInstagram')}
+        </a>
+        <button type="button" onClick={closeSentDialog} className="btn btn-outline mt-3 !h-12 w-full">
+          {t('gotIt')}
+        </button>
+      </div>
+    </Dialog>
+  )
 
   if (guestSubmitted) {
     return (
@@ -112,6 +139,7 @@ function SelectionsView() {
             {t('continueShopping')}
           </Link>
         </EmptyState>
+        {sentDialog}
       </div>
     )
   }
@@ -125,6 +153,7 @@ function SelectionsView() {
             {t('browseDresses')}
           </Link>
         </EmptyState>
+        {sentDialog}
       </div>
     )
   }
@@ -243,6 +272,7 @@ function SelectionsView() {
         {submitting ? t('sending') : t('sendMyList')}
       </button>
       <p className="mt-3 text-center text-xs text-muted">{t('noPaymentNote')}</p>
+      {sentDialog}
     </div>
   )
 }
