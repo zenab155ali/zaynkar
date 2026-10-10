@@ -24,8 +24,10 @@ import SignInPage from '@/pages/store/SignInPage'
 import SignUpPage from '@/pages/store/SignUpPage'
 import StorePage from '@/pages/store/StorePage'
 import StoreProductPage from '@/pages/store/StoreProductPage'
+import { usePageViewTracking } from '@/hooks/usePageViewTracking'
 
 export default function App() {
+  usePageViewTracking()
   return (
     <Routes>
       {/* Admin — separate shell, no site header/footer, reached only by knowing the URL + the admin login. */}

@@ -29,6 +29,10 @@
       rel="stylesheet"
     />
     <title>ZAYNKAR — أسلوبكِ. عالمكِ.</title>
+    <!-- Visit counter (GoatCounter — counts only, no personal data). Fires manually per route
+         change (see src/hooks/usePageViewTracking.ts) since this is a single-page app and a plain
+         page load only happens once, not on every in-app navigation. -->
+    <script data-goatcounter="https://zaynkar.goatcounter.com/count" data-goatcounter-settings='{"no_onload": true}' async src="//gc.zgo.at/count.js"></script>
   </head>
   <body>
     <div id="root"></div>
