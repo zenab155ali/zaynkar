@@ -24,8 +24,8 @@ fi
 echo "==> Building version $VERSION"
 rm -rf dist-root dist-v
 npx tsc -b
-npx vite build --base="/zaynkar/" --outDir=dist-root
-npx vite build --base="/zaynkar/versions/v$VERSION/" --outDir="dist-v"
+npx vite build --base="/" --outDir=dist-root
+npx vite build --base="/versions/v$VERSION/" --outDir="dist-v"
 
 make_404() {
   local out="$1" segments="$2"
@@ -51,9 +51,9 @@ make_404() {
 </html>
 EOF
 }
-# pathSegmentsToKeep: 1 for root (/zaynkar/), 3 for an archived version (/zaynkar/versions/vN/)
-make_404 dist-root/404.html 1
-make_404 dist-v/404.html 3
+# pathSegmentsToKeep: 0 at the domain root (/), 2 for an archived version (/versions/vN/)
+make_404 dist-root/404.html 0
+make_404 dist-v/404.html 2
 
 echo "==> Updating gh-pages branch"
 rm -rf gh-pages-wt
@@ -109,6 +109,7 @@ git push
 
 echo ""
 echo "Deployed."
-echo "  Latest:   https://zenab155ali.github.io/zaynkar/"
-echo "  Version $VERSION: https://zenab155ali.github.io/zaynkar/versions/v$VERSION/"
-echo "  All versions: https://zenab155ali.github.io/zaynkar/versions/"
+echo "  Latest:   https://zaynkar.com/"
+echo "  Version $VERSION: https://zaynkar.com/versions/v$VERSION/"
+echo "  All versions: https://zaynkar.com/versions/"
+echo "  (github.io/zaynkar now redirects to zaynkar.com automatically)"
