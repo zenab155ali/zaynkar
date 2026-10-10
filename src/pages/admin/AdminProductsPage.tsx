@@ -73,6 +73,7 @@ export default function AdminProductsPage() {
   const [notice, setNotice] = useState<string | null>(null)
   const [translating, setTranslating] = useState(false)
   const [compressing, setCompressing] = useState(false)
+  const [compressProgress, setCompressProgress] = useState<{ done: number; total: number } | null>(null)
   const [restoring, setRestoring] = useState(false)
   const [compressionLogCount, setCompressionLogCount] = useState(0)
 
@@ -156,40 +157,56 @@ export default function AdminProductsPage() {
 
   // Shrinks every existing full-size photo (uploaded before photos were compressed automatically)
   // down to a much smaller WebP copy and repoints the product/color at it — safe to run more than
-  // once, since an already-compressed (.webp) photo is simply skipped.
+  // once, since an already-compressed (.webp) photo is simply skipped. Processes several photos at
+  // once (instead of one at a time) with a visible counter, since a full catalog can easily be a
+  // few hundred photos and each one needs its own download + upload round trip.
   const compressExistingPhotos = async () => {
     if (!supabase) return
+    const sb = supabase
+    interface PhotoTask {
+      table: 'product_media' | 'product_colors'
+      rowId: string
+      column: 'media_url' | 'photo_url'
+      url: string
+    }
+    const tasks: PhotoTask[] = []
+    for (const p of products) {
+      for (const m of p.media) if (m.type === 'image') tasks.push({ table: 'product_media', rowId: m.id, column: 'media_url', url: m.url })
+      for (const c of p.colors) if (c.photoUrl) tasks.push({ table: 'product_colors', rowId: c.id, column: 'photo_url', url: c.photoUrl })
+    }
+
     setCompressing(true)
     setNotice(null)
-    let done = 0
+    setCompressProgress({ done: 0, total: tasks.length })
+    let compressedCount = 0
+    let processedCount = 0
+    const CONCURRENCY = 5
+
     try {
-      for (const p of products) {
-        for (const m of p.media) {
-          if (m.type !== 'image') continue
-          const newUrl = await recompressExistingPhoto(m.url)
+      let next = 0
+      const worker = async () => {
+        while (next < tasks.length) {
+          const task = tasks[next++]
+          const newUrl = await recompressExistingPhoto(task.url)
           if (newUrl) {
-            await supabase.from('photo_compression_log').insert({ table_name: 'product_media', row_id: m.id, column_name: 'media_url', old_url: m.url, new_url: newUrl })
-            await supabase.from('product_media').update({ media_url: newUrl }).eq('id', m.id)
-            done++
+            await sb.from('photo_compression_log').insert({ table_name: task.table, row_id: task.rowId, column_name: task.column, old_url: task.url, new_url: newUrl })
+            await sb.from(task.table).update({ [task.column]: newUrl }).eq('id', task.rowId)
+            compressedCount++
           }
-        }
-        for (const c of p.colors) {
-          if (!c.photoUrl) continue
-          const newUrl = await recompressExistingPhoto(c.photoUrl)
-          if (newUrl) {
-            await supabase.from('photo_compression_log').insert({ table_name: 'product_colors', row_id: c.id, column_name: 'photo_url', old_url: c.photoUrl, new_url: newUrl })
-            await supabase.from('product_colors').update({ photo_url: newUrl }).eq('id', c.id)
-            done++
-          }
+          processedCount++
+          setCompressProgress({ done: processedCount, total: tasks.length })
         }
       }
-      setNotice(done > 0 ? `Compressed ${done} photo${done === 1 ? '' : 's'}.` : 'Every photo is already compressed.')
+      await Promise.all(Array.from({ length: Math.min(CONCURRENCY, tasks.length) }, worker))
+
+      setNotice(compressedCount > 0 ? `Compressed ${compressedCount} photo${compressedCount === 1 ? '' : 's'}.` : 'Every photo is already compressed.')
       await refresh()
       await refreshCompressionLogCount()
     } catch {
       setNotice('Something went wrong while compressing — you can try again.')
     }
     setCompressing(false)
+    setCompressProgress(null)
   }
 
   // Undoes compressExistingPhotos: puts every row back on its original (uncompressed) photo,
@@ -224,7 +241,8 @@ export default function AdminProductsPage() {
         </div>
         <div className="flex items-center gap-2">
           <button type="button" onClick={compressExistingPhotos} disabled={compressing} className="btn btn-outline btn-sm disabled:opacity-50">
-            <ImageDown size={16} aria-hidden="true" /> {compressing ? 'Compressing…' : 'Compress existing photos'}
+            <ImageDown size={16} aria-hidden="true" />
+            {compressing ? `Compressing… (${compressProgress?.done ?? 0}/${compressProgress?.total ?? 0})` : 'Compress existing photos'}
           </button>
           {compressionLogCount > 0 && (
             <button type="button" onClick={restoreOriginalPhotos} disabled={restoring} className="btn btn-outline btn-sm disabled:opacity-50">
