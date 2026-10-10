@@ -73,9 +73,18 @@ export default function AdminProductsPage() {
   const [notice, setNotice] = useState<string | null>(null)
   const [translating, setTranslating] = useState(false)
   const [compressing, setCompressing] = useState(false)
+  const [restoring, setRestoring] = useState(false)
+  const [compressionLogCount, setCompressionLogCount] = useState(0)
+
+  const refreshCompressionLogCount = async () => {
+    if (!supabase) return
+    const { count } = await supabase.from('photo_compression_log').select('id', { count: 'exact', head: true })
+    setCompressionLogCount(count ?? 0)
+  }
 
   useEffect(() => {
     refresh()
+    refreshCompressionLogCount()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
@@ -159,6 +168,7 @@ export default function AdminProductsPage() {
           if (m.type !== 'image') continue
           const newUrl = await recompressExistingPhoto(m.url)
           if (newUrl) {
+            await supabase.from('photo_compression_log').insert({ table_name: 'product_media', row_id: m.id, column_name: 'media_url', old_url: m.url, new_url: newUrl })
             await supabase.from('product_media').update({ media_url: newUrl }).eq('id', m.id)
             done++
           }
@@ -167,6 +177,7 @@ export default function AdminProductsPage() {
           if (!c.photoUrl) continue
           const newUrl = await recompressExistingPhoto(c.photoUrl)
           if (newUrl) {
+            await supabase.from('photo_compression_log').insert({ table_name: 'product_colors', row_id: c.id, column_name: 'photo_url', old_url: c.photoUrl, new_url: newUrl })
             await supabase.from('product_colors').update({ photo_url: newUrl }).eq('id', c.id)
             done++
           }
@@ -174,10 +185,34 @@ export default function AdminProductsPage() {
       }
       setNotice(done > 0 ? `Compressed ${done} photo${done === 1 ? '' : 's'}.` : 'Every photo is already compressed.')
       await refresh()
+      await refreshCompressionLogCount()
     } catch {
       setNotice('Something went wrong while compressing — you can try again.')
     }
     setCompressing(false)
+  }
+
+  // Undoes compressExistingPhotos: puts every row back on its original (uncompressed) photo,
+  // using the log that compression wrote before each change. The compressed copies are left in
+  // storage (harmless, just unused) rather than deleted, to keep this restore itself safe to re-run.
+  const restoreOriginalPhotos = async () => {
+    if (!supabase) return
+    if (!window.confirm(`Restore ${compressionLogCount} photo${compressionLogCount === 1 ? '' : 's'} to their original, uncompressed versions?`)) return
+    setRestoring(true)
+    setNotice(null)
+    try {
+      const { data: log } = await supabase.from('photo_compression_log').select('id, table_name, row_id, column_name, old_url')
+      for (const entry of log ?? []) {
+        await supabase.from(entry.table_name).update({ [entry.column_name]: entry.old_url }).eq('id', entry.row_id)
+        await supabase.from('photo_compression_log').delete().eq('id', entry.id)
+      }
+      setNotice(`Restored ${log?.length ?? 0} photo${log?.length === 1 ? '' : 's'} to their originals.`)
+      await refresh()
+      await refreshCompressionLogCount()
+    } catch {
+      setNotice('Something went wrong while restoring — you can try again.')
+    }
+    setRestoring(false)
   }
 
   return (
@@ -191,6 +226,11 @@ export default function AdminProductsPage() {
           <button type="button" onClick={compressExistingPhotos} disabled={compressing} className="btn btn-outline btn-sm disabled:opacity-50">
             <ImageDown size={16} aria-hidden="true" /> {compressing ? 'Compressing…' : 'Compress existing photos'}
           </button>
+          {compressionLogCount > 0 && (
+            <button type="button" onClick={restoreOriginalPhotos} disabled={restoring} className="btn btn-outline btn-sm disabled:opacity-50">
+              <ImageDown size={16} aria-hidden="true" className="rotate-180" /> {restoring ? 'Restoring…' : `Restore original photos (${compressionLogCount})`}
+            </button>
+          )}
           <button type="button" onClick={translateExistingCatalog} disabled={translating} className="btn btn-outline btn-sm disabled:opacity-50">
             <Languages size={16} aria-hidden="true" /> {translating ? 'Translating…' : 'Translate catalog to Hebrew'}
           </button>
