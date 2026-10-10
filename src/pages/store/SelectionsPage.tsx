@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { Send, ShoppingBag, Trash2 } from 'lucide-react'
+import { Check, Copy, Send, ShoppingBag, Trash2 } from 'lucide-react'
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
 import { Dialog } from '@/components/ui/Dialog'
 import { EmptyState } from '@/components/ui/EmptyState'
@@ -40,6 +40,8 @@ function SelectionsView() {
   const [error, setError] = useState<string | null>(null)
   const [guestSubmitted, setGuestSubmitted] = useState(false)
   const [sentDialogOpen, setSentDialogOpen] = useState(false)
+  const [orderCode, setOrderCode] = useState<string | null>(null)
+  const [codeCopied, setCodeCopied] = useState(false)
 
   const total = lines.reduce((sum, l) => sum + l.product.price * l.quantity, 0)
   const guestDetailsValid = guestFullName.trim() && guestCountry.trim() && guestPhone.trim()
@@ -61,7 +63,7 @@ function SelectionsView() {
     const requestId = user ? null : crypto.randomUUID()
 
     const { data: request, error: reqError } = user
-      ? await supabase.from('requests').insert({ customer_id: user.id, note }).select('id').single()
+      ? await supabase.from('requests').insert({ customer_id: user.id, note }).select('id, order_number').single()
       : await supabase
           .from('requests')
           .insert({
@@ -73,7 +75,7 @@ function SelectionsView() {
             guest_phone: guestPhone.trim(),
             guest_instagram: guestInstagram.trim() || null,
           })
-          .then(() => ({ data: { id: requestId }, error: null }))
+          .then(() => ({ data: { id: requestId, order_number: null as string | null }, error: null }))
     if (reqError || !request) {
       setError((reqError as { message?: string } | null)?.message ?? t('submitFailed'))
       setSubmitting(false)
@@ -99,8 +101,14 @@ function SelectionsView() {
       return
     }
 
+    // Guests can't read back their own row (see the RLS note above), so the order number
+    // for a guest comes from a narrow security-definer RPC instead of the insert's own result.
+    const orderNumber = user ? request.order_number : (await supabase.rpc('get_order_number', { req_id: request.id })).data
+
     clear()
     setSubmitting(false)
+    setOrderCode(orderNumber ?? null)
+    setCodeCopied(false)
     if (!user) setGuestSubmitted(true)
     setSentDialogOpen(true)
   }
@@ -110,10 +118,36 @@ function SelectionsView() {
     if (user) navigate('/my-requests')
   }
 
+  const copyOrderCode = async () => {
+    if (!orderCode) return
+    try {
+      await navigator.clipboard.writeText(orderCode)
+      setCodeCopied(true)
+      setTimeout(() => setCodeCopied(false), 2000)
+    } catch {
+      // ignore (clipboard permission denied) — the code is still visible to copy manually
+    }
+  }
+
   const sentDialog = (
     <Dialog open={sentDialogOpen} onClose={closeSentDialog} label={t('listSentTitle')} variant="center">
       <div className="p-6 text-center">
         <h2 className="display text-2xl">{t('listSentTitle')}</h2>
+        {orderCode && (
+          <div className="mt-4">
+            <p className="text-xs font-medium tracking-wide text-muted">{t('yourOrderCode')}</p>
+            <button
+              type="button"
+              onClick={copyOrderCode}
+              className="mt-1.5 flex w-full items-center justify-center gap-2 border border-line bg-sand/40 px-4 py-3 font-mono text-lg tracking-wide transition-colors hover:border-ink"
+              dir="ltr"
+            >
+              {orderCode}
+              {codeCopied ? <Check size={16} className="text-success" aria-hidden="true" /> : <Copy size={16} className="text-muted" aria-hidden="true" />}
+              <span className="sr-only">{codeCopied ? t('codeCopied') : t('copyCode')}</span>
+            </button>
+          </div>
+        )}
         <p className="mt-3 text-sm leading-relaxed text-muted">{t('listSentInstagramHint')}</p>
         <a
           href={INSTAGRAM_URL}
