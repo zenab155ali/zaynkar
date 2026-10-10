@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { ShoppingBag } from 'lucide-react'
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
@@ -11,6 +11,7 @@ import { useProducts } from '@/context/ProductsContext'
 import { useSelections } from '@/context/SelectionsContext'
 import { useToast } from '@/context/ToastContext'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
+import { resizedImageUrl } from '@/utils/images'
 import NotFoundPage from '@/pages/NotFoundPage'
 
 interface EditLineState {
@@ -45,7 +46,41 @@ function ProductView() {
     return selectedColor?.photoUrl ? [{ url: selectedColor.photoUrl, type: 'image' as const }, ...product.media] : product.media
   }, [product, selectedColor])
 
+  // Every color's photo loads in the background as soon as the page opens, so switching
+  // colors afterward swaps instantly instead of waiting on a fresh download each time.
+  useEffect(() => {
+    if (!product) return
+    for (const c of product.colors) {
+      if (!c.photoUrl) continue
+      const img = new Image()
+      img.src = resizedImageUrl(c.photoUrl, 800)
+    }
+  }, [product])
+
   if (!product || !productName) return <NotFoundPage />
+
+  const colorPicker = product.colors.length > 0 && (
+    <div>
+      {product.colors.some((c) => c.photoUrl) && (
+        <p className="mb-2 border border-ink/15 bg-sand/60 px-3 py-2 text-xs font-medium leading-relaxed text-ink">{t('colorChangesPhotoHint')}</p>
+      )}
+      <p className="mb-2 text-sm">
+        {t('color')}: <span className="font-medium">{pick(colorName, product.colors.find((c) => c.colorName === colorName)?.colorNameHe)}</span>
+      </p>
+      <div className="flex flex-wrap gap-2">
+        {product.colors.map((c) => (
+          <button
+            key={c.id}
+            type="button"
+            onClick={() => setColorName(c.colorName)}
+            className={`border px-3.5 py-2 text-sm transition-colors ${colorName === c.colorName ? 'border-ink bg-ink text-ivory' : 'border-line bg-white hover:border-ink'}`}
+          >
+            {pick(c.colorName, c.colorNameHe)}
+          </button>
+        ))}
+      </div>
+    </div>
+  )
 
   const onAdd = () => {
     if (!size) {
@@ -70,6 +105,7 @@ function ProductView() {
       <div className="mt-5 grid gap-10 lg:grid-cols-12">
         <div className="lg:col-span-7">
           <StoreMediaGallery media={media} name={productName} />
+          {colorPicker && <div className="mt-4 lg:hidden">{colorPicker}</div>}
         </div>
         <div className="lg:col-span-5">
           <div className="flex items-start justify-between gap-3">
@@ -83,28 +119,10 @@ function ProductView() {
           </div>
           <p className="mt-3 text-xl font-medium">{format(product.price)}</p>
 
+          {colorPicker && <div className="mt-4 hidden lg:block">{colorPicker}</div>}
+
           {product.description && (
             <p className="mt-4 whitespace-pre-line text-sm leading-relaxed text-muted">{pick(product.description, product.descriptionHe)}</p>
-          )}
-
-          {product.colors.length > 0 && (
-            <div className="mt-6">
-              <p className="mb-2 text-sm">
-                {t('color')}: <span className="font-medium">{pick(colorName, product.colors.find((c) => c.colorName === colorName)?.colorNameHe)}</span>
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {product.colors.map((c) => (
-                  <button
-                    key={c.id}
-                    type="button"
-                    onClick={() => setColorName(c.colorName)}
-                    className={`border px-3.5 py-2 text-sm transition-colors ${colorName === c.colorName ? 'border-ink bg-ink text-ivory' : 'border-line bg-white hover:border-ink'}`}
-                  >
-                    {pick(c.colorName, c.colorNameHe)}
-                  </button>
-                ))}
-              </div>
-            </div>
           )}
 
           {product.sizes.length > 0 && (

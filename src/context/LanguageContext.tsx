@@ -80,6 +80,10 @@ const STRINGS: Record<string, { ar: string; he: string }> = {
   next: { ar: 'التالي', he: 'הבא' },
   viewImageN: { ar: 'عرض الصورة', he: 'הצגת תמונה' },
   noColorSelected: { ar: 'غير محدد', he: 'לא נבחר' },
+  colorChangesPhotoHint: {
+    ar: '💡 لكل لون صورة مختلفة — اضغطي على اللون لتشاهدي صورته!',
+    he: '💡 לכל צבע יש תמונה משלו — לחצי על הצבע כדי לראות אותה!',
+  },
   unspecifiedSize: { ar: 'بدون مقاس', he: 'ללא מידה' },
 
   // Colors preview popup / grid card

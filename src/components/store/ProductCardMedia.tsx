@@ -4,6 +4,7 @@ import { Dialog } from '@/components/ui/Dialog'
 import { useLanguage } from '@/context/LanguageContext'
 import { useSelections } from '@/context/SelectionsContext'
 import { useToast } from '@/context/ToastContext'
+import { resizedImageUrl } from '@/utils/images'
 import type { CatalogProduct } from '@/types/catalog'
 
 /** Cover photo first, then each color's own photo (deduplicated) — lets customers swipe through colors right from the grid. */
@@ -85,7 +86,7 @@ export function ProductCardMedia({ product }: { product: CatalogProduct }) {
   return (
     <div className="relative aspect-[3/4] overflow-hidden bg-sand" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd} onClickCapture={onClickCapture}>
       <img
-        src={images[index]}
+        src={resizedImageUrl(images[index], 480)}
         alt=""
         loading="lazy"
         decoding="async"
@@ -143,7 +144,7 @@ export function ProductCardMedia({ product }: { product: CatalogProduct }) {
                 className="group text-start"
               >
                 <div className="relative aspect-[3/4] overflow-hidden bg-sand">
-                  {photo && <img src={photo} alt={c.colorName} className="absolute inset-0 h-full w-full object-cover transition-transform group-hover:scale-[1.03]" />}
+                  {photo && <img src={resizedImageUrl(photo, 300)} alt={c.colorName} className="absolute inset-0 h-full w-full object-cover transition-transform group-hover:scale-[1.03]" />}
                 </div>
                 <p className="mt-1.5 text-xs">{pick(c.colorName, c.colorNameHe)}</p>
               </button>

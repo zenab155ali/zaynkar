@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { ChevronLeft, ChevronRight, Video } from 'lucide-react'
 import { useLanguage } from '@/context/LanguageContext'
+import { resizedImageUrl } from '@/utils/images'
 import type { ProductMedia } from '@/types/catalog'
 
 interface StoreMediaGalleryProps {
@@ -28,7 +29,7 @@ export function StoreMediaGallery({ media, name }: StoreMediaGalleryProps) {
         {current.type === 'video' ? (
           <video src={current.url} className="h-full w-full object-contain" controls playsInline />
         ) : (
-          <img src={current.url} alt={`${name} — view ${active + 1} of ${media.length}`} className="h-full w-full object-contain" />
+          <img src={resizedImageUrl(current.url, 800)} alt={`${name} — view ${active + 1} of ${media.length}`} className="h-full w-full object-contain" />
         )}
         {media.length > 1 && (
           <>
@@ -51,7 +52,7 @@ export function StoreMediaGallery({ media, name }: StoreMediaGalleryProps) {
               aria-label={`${t('viewImageN')} ${i + 1}`}
               className={`relative grid aspect-[3/4] w-16 place-items-center overflow-hidden bg-sand transition lg:w-full ${i === active ? 'ring-1 ring-ink ring-offset-2 ring-offset-ivory' : 'opacity-70 hover:opacity-100'}`}
             >
-              {m.type === 'video' ? <Video size={16} className="text-muted" /> : <img src={m.url} alt="" className="h-full w-full object-cover" />}
+              {m.type === 'video' ? <Video size={16} className="text-muted" /> : <img src={resizedImageUrl(m.url, 160)} alt="" className="h-full w-full object-cover" />}
             </button>
           ))}
         </div>
