@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { ShoppingBag } from 'lucide-react'
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
@@ -11,7 +11,6 @@ import { useProducts } from '@/context/ProductsContext'
 import { useSelections } from '@/context/SelectionsContext'
 import { useToast } from '@/context/ToastContext'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
-import { resizedImageUrl } from '@/utils/images'
 import NotFoundPage from '@/pages/NotFoundPage'
 
 interface EditLineState {
@@ -45,17 +44,6 @@ function ProductView() {
     if (!product) return []
     return selectedColor?.photoUrl ? [{ url: selectedColor.photoUrl, type: 'image' as const }, ...product.media] : product.media
   }, [product, selectedColor])
-
-  // Every color's photo loads in the background as soon as the page opens, so switching
-  // colors afterward swaps instantly instead of waiting on a fresh download each time.
-  useEffect(() => {
-    if (!product) return
-    for (const c of product.colors) {
-      if (!c.photoUrl) continue
-      const img = new Image()
-      img.src = resizedImageUrl(c.photoUrl, 800)
-    }
-  }, [product])
 
   if (!product || !productName) return <NotFoundPage />
 

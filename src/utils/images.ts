@@ -7,19 +7,13 @@ import type { ImageFocus, ProductImage } from '@/types'
  */
 const DEMO_IMAGE_BASE = 'https://images.unsplash.com/photo-'
 
-// Real product photos are uploaded as-is (often multi-hundred-KB PNGs straight from a phone camera)
-// to this exact Supabase Storage path. Supabase can resize + re-encode them on the fly through its
-// "render" endpoint — swapping the url to it and adding a target width cuts a typical photo by ~90%
-// (PNG → WebP + a sane resolution), which is most of why the store used to feel slow to load.
-const SUPABASE_STORAGE_OBJECT_PATH = '/storage/v1/object/public/'
-const SUPABASE_STORAGE_RENDER_PATH = '/storage/v1/render/image/public/'
-
-/** Resizes and re-encodes a real (Supabase Storage) product photo URL; any other URL is returned unchanged. */
-export function resizedImageUrl(url: string, width: number): string {
-  if (!url.includes(SUPABASE_STORAGE_OBJECT_PATH)) return url
-  const rendered = url.replace(SUPABASE_STORAGE_OBJECT_PATH, SUPABASE_STORAGE_RENDER_PATH)
-  const params = new URLSearchParams({ width: String(Math.round(width)), quality: '75', format: 'webp' })
-  return `${rendered}?${params.toString()}`
+// Supabase's on-the-fly image-render endpoint (resize + re-encode to WebP) cut a typical photo by
+// ~90% in testing, but turned out unreliable at real browsing volume — photos intermittently failed
+// to load at all on a phone. Disabled for now (passes the original URL through unchanged) until a
+// more reliable approach (most likely: compressing photos once at upload time instead of on every
+// view) replaces it. Kept as a single pass-through function so every call site is already wired up.
+export function resizedImageUrl(url: string, _width: number): string {
+  return url
 }
 
 export const keyImage = (key: ImageKey, focus?: ImageFocus): ProductImage => ({ key, focus })
