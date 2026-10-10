@@ -1,6 +1,6 @@
 {
   "repo": "zenab155ali/zaynkar",
-  "latestVersion": 24,
+  "latestVersion": 25,
   "versions": [
     {
       "version": 1,
@@ -145,6 +145,12 @@
       "date": "2026-10-10",
       "commit": "e2de469",
       "note": "Revert unreliable image resizing \u2014 fixes blank photos on phones"
+    },
+    {
+      "version": 25,
+      "date": "2026-10-10",
+      "commit": "08a43bd",
+      "note": "Compress photos in-browser (no live resize dependency) + backfill tool"
     }
   ]
 }
