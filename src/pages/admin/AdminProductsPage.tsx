@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Eye, EyeOff, FileClock, Heart, Languages, Package, Pencil, Plus, ShoppingBag, Trash2, Video, X } from 'lucide-react'
+import { Eye, EyeOff, FileClock, Heart, ImageDown, Languages, Package, Pencil, Plus, ShoppingBag, Trash2, Video, X } from 'lucide-react'
 import { SmartImage } from '@/components/ui/SmartImage'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { useCurrency } from '@/context/CurrencyContext'
 import { useProducts } from '@/context/ProductsContext'
 import { supabase } from '@/lib/supabase'
 import { translateToHebrew } from '@/lib/translate'
+import { recompressExistingPhoto } from '@/lib/uploadProductMedia'
 import { listDrafts, removeDraft, type DraftSummary } from '@/lib/productDrafts'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 
@@ -71,6 +72,7 @@ export default function AdminProductsPage() {
   const [busyId, setBusyId] = useState<string | null>(null)
   const [notice, setNotice] = useState<string | null>(null)
   const [translating, setTranslating] = useState(false)
+  const [compressing, setCompressing] = useState(false)
 
   useEffect(() => {
     refresh()
@@ -143,6 +145,41 @@ export default function AdminProductsPage() {
     setTranslating(false)
   }
 
+  // Shrinks every existing full-size photo (uploaded before photos were compressed automatically)
+  // down to a much smaller WebP copy and repoints the product/color at it — safe to run more than
+  // once, since an already-compressed (.webp) photo is simply skipped.
+  const compressExistingPhotos = async () => {
+    if (!supabase) return
+    setCompressing(true)
+    setNotice(null)
+    let done = 0
+    try {
+      for (const p of products) {
+        for (const m of p.media) {
+          if (m.type !== 'image') continue
+          const newUrl = await recompressExistingPhoto(m.url)
+          if (newUrl) {
+            await supabase.from('product_media').update({ media_url: newUrl }).eq('id', m.id)
+            done++
+          }
+        }
+        for (const c of p.colors) {
+          if (!c.photoUrl) continue
+          const newUrl = await recompressExistingPhoto(c.photoUrl)
+          if (newUrl) {
+            await supabase.from('product_colors').update({ photo_url: newUrl }).eq('id', c.id)
+            done++
+          }
+        }
+      }
+      setNotice(done > 0 ? `Compressed ${done} photo${done === 1 ? '' : 's'}.` : 'Every photo is already compressed.')
+      await refresh()
+    } catch {
+      setNotice('Something went wrong while compressing — you can try again.')
+    }
+    setCompressing(false)
+  }
+
   return (
     <div>
       <div className="mb-6 flex items-center justify-between gap-4">
@@ -151,6 +188,9 @@ export default function AdminProductsPage() {
           <p className="text-sm text-muted">{products.length} total</p>
         </div>
         <div className="flex items-center gap-2">
+          <button type="button" onClick={compressExistingPhotos} disabled={compressing} className="btn btn-outline btn-sm disabled:opacity-50">
+            <ImageDown size={16} aria-hidden="true" /> {compressing ? 'Compressing…' : 'Compress existing photos'}
+          </button>
           <button type="button" onClick={translateExistingCatalog} disabled={translating} className="btn btn-outline btn-sm disabled:opacity-50">
             <Languages size={16} aria-hidden="true" /> {translating ? 'Translating…' : 'Translate catalog to Hebrew'}
           </button>
