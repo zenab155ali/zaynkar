@@ -84,6 +84,7 @@ const STRINGS: Record<string, { ar: string; he: string }> = {
     ar: '💡 لكل لون صورة مختلفة — اضغطي على اللون لتشاهدي صورته!',
     he: '💡 לכל צבע יש תמונה משלו — לחצי על הצבע כדי לראות אותה!',
   },
+  photoLoading: { ar: 'جارِ تحميل الصورة… ثانية واحدة 📸', he: 'התמונה נטענת… רגע אחד 📸' },
   unspecifiedSize: { ar: 'بدون مقاس', he: 'ללא מידה' },
 
   // Colors preview popup / grid card
