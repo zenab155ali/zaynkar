@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/versions/v30/favicon.svg" />
+    <!-- GitHub Pages SPA routing fix: restores the real path after the 404.html redirect trick. -->
+    <script type="text/javascript">
+      (function (l) {
+        if (l.search[1] === '/') {
+          var decoded = l.search
+            .slice(1)
+            .split('&')
+            .map(function (s) {
+              return s.replace(/~and~/g, '&')
+            })
+            .join('?')
+          window.history.replaceState(null, null, l.pathname.slice(0, -1) + decoded + l.hash)
+        }
+      })(window.location)
+    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#faf8f5" />
+    <meta name="description" content="زاينكار — فساتين أنيقة، مختارة لكِ." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://images.unsplash.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@400;500;600&family=Markazi+Text:wght@500;600;700&family=Tajawal:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <title>ZAYNKAR — أسلوبكِ. عالمكِ.</title>
+    <!-- Visit counter (GoatCounter — counts only, no personal data). Fires manually per route
+         change (see src/hooks/usePageViewTracking.ts) since this is a single-page app and a plain
+         page load only happens once, not on every in-app navigation. -->
+    <script data-goatcounter="https://zaynkar.goatcounter.com/count" data-goatcounter-settings='{"no_onload": true}' async src="//gc.zgo.at/count.js"></script>
+    <script type="module" crossorigin src="/versions/v30/assets/index-BvMHGoTm.js"></script>
+    <link rel="stylesheet" crossorigin href="/versions/v30/assets/index-DRZJsqwV.css">
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>
