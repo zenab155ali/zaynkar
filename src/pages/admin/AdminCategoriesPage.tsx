@@ -26,6 +26,17 @@ export default function AdminCategoriesPage() {
     setSavingId(null)
   }
 
+  // Only one category is ever "the" resale one — turning it on for a category turns it off
+  // everywhere else, so there's never ambiguity about which one shows the "sell your dress" banner.
+  const setResaleCategory = async (categoryId: string, isResale: boolean) => {
+    if (!supabase) return
+    setSavingId(categoryId)
+    if (isResale) await supabase.from('categories').update({ is_resale: false }).neq('id', categoryId)
+    await supabase.from('categories').update({ is_resale: isResale }).eq('id', categoryId)
+    await refresh()
+    setSavingId(null)
+  }
+
   const addCategory = async () => {
     const trimmed = newName.trim()
     if (!trimmed || !supabase) return
@@ -142,6 +153,10 @@ export default function AdminCategoriesPage() {
               <p className="mt-0.5 text-xs text-muted">
                 {productCount(c.id)} product{productCount(c.id) === 1 ? '' : 's'}
               </p>
+              <label className="mt-1.5 flex items-center gap-1.5 text-xs text-muted">
+                <input type="checkbox" checked={c.isResale} onChange={(e) => setResaleCategory(c.id, e.target.checked)} className="h-3.5 w-3.5 accent-ink" />
+                This is the "sell your own dress" category
+              </label>
               {savingId === c.id && <p className="mt-1 text-xs text-muted">Saving…</p>}
             </div>
             <button type="button" onClick={() => deleteCategory(c.id, c.name)} aria-label={`Delete ${c.name}`} className="shrink-0 text-muted hover:text-sale">

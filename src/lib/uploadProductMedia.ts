@@ -1,4 +1,4 @@
-import { PRODUCT_MEDIA_BUCKET, supabase } from '@/lib/supabase'
+import { PRODUCT_MEDIA_BUCKET, RESALE_SUBMISSIONS_BUCKET, supabase } from '@/lib/supabase'
 import type { MediaType } from '@/types/catalog'
 
 export const MAX_IMAGE_BYTES = 8 * 1024 * 1024
@@ -52,18 +52,27 @@ async function compressImageBlob(blob: Blob, name: string): Promise<File> {
   }
 }
 
-/** Uploads an admin-chosen photo or video to Supabase Storage and returns its public URL + type. */
-export async function uploadProductMedia(file: File): Promise<{ url: string; type: MediaType }> {
+async function uploadMediaTo(bucket: string, file: File): Promise<{ url: string; type: MediaType }> {
   if (!supabase) throw new Error('Not connected to a database yet.')
   const type = mediaTypeOf(file)
   if (!type) throw new Error('Unsupported file type.')
   const uploadFile = type === 'image' ? await compressImageBlob(file, file.name) : file
   const ext = uploadFile.name.split('.').pop()?.toLowerCase() || (type === 'video' ? 'mp4' : 'jpg')
   const path = `${crypto.randomUUID()}.${ext}`
-  const { error } = await supabase.storage.from(PRODUCT_MEDIA_BUCKET).upload(path, uploadFile, { contentType: uploadFile.type, upsert: false })
+  const { error } = await supabase.storage.from(bucket).upload(path, uploadFile, { contentType: uploadFile.type, upsert: false })
   if (error) throw new Error(error.message)
-  const { data } = supabase.storage.from(PRODUCT_MEDIA_BUCKET).getPublicUrl(path)
+  const { data } = supabase.storage.from(bucket).getPublicUrl(path)
   return { url: data.publicUrl, type }
+}
+
+/** Uploads an admin-chosen photo or video to Supabase Storage and returns its public URL + type. */
+export async function uploadProductMedia(file: File): Promise<{ url: string; type: MediaType }> {
+  return uploadMediaTo(PRODUCT_MEDIA_BUCKET, file)
+}
+
+/** Uploads a customer's own photo of a used dress they're submitting for resale (no admin needed). */
+export async function uploadResaleSubmissionMedia(file: File): Promise<{ url: string; type: MediaType }> {
+  return uploadMediaTo(RESALE_SUBMISSIONS_BUCKET, file)
 }
 
 /**

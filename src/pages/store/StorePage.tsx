@@ -218,6 +218,15 @@ function StoreGrid() {
           </button>
         </form>
       </div>
+      {selectedCategory?.isResale && (
+        <div className="mb-6 flex flex-col items-start gap-3 border border-ink/15 bg-sand/60 p-4 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-sm leading-relaxed">{t('sellYourDressBannerText')}</p>
+          <Link to="/sell-your-dress" className="btn btn-primary btn-sm shrink-0 whitespace-nowrap">
+            {t('sellYourDressButton')}
+          </Link>
+        </div>
+      )}
+
       {codeError && <p className="mb-6 text-sm text-sale">{codeError}</p>}
 
       {!loading && !error && active.length > 0 && (

@@ -23,3 +23,4 @@ export const ADMIN_INTERNAL_EMAIL = (import.meta.env.VITE_ADMIN_EMAIL as string 
 export const supabase: SupabaseClient | null = isSupabaseConfigured ? createClient(url as string, anonKey as string) : null
 
 export const PRODUCT_MEDIA_BUCKET = 'product-media'
+export const RESALE_SUBMISSIONS_BUCKET = 'resale-submissions'

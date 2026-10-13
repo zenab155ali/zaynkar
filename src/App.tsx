@@ -17,9 +17,11 @@ import AdminLoginPage from '@/pages/admin/AdminLoginPage'
 import AdminProductFormPage from '@/pages/admin/AdminProductFormPage'
 import AdminProductsPage from '@/pages/admin/AdminProductsPage'
 import AdminRequestsPage from '@/pages/admin/AdminRequestsPage'
+import AdminResaleSubmissionsPage from '@/pages/admin/AdminResaleSubmissionsPage'
 import MyLikedItemsPage from '@/pages/store/MyLikedItemsPage'
 import MyRequestsPage from '@/pages/store/MyRequestsPage'
 import SelectionsPage from '@/pages/store/SelectionsPage'
+import SellYourDressPage from '@/pages/store/SellYourDressPage'
 import SignInPage from '@/pages/store/SignInPage'
 import SignUpPage from '@/pages/store/SignUpPage'
 import StorePage from '@/pages/store/StorePage'
@@ -39,6 +41,7 @@ export default function App() {
         <Route path="products/:productId" element={<AdminProductFormPage />} />
         <Route path="categories" element={<AdminCategoriesPage />} />
         <Route path="requests" element={<AdminRequestsPage />} />
+        <Route path="resale" element={<AdminResaleSubmissionsPage />} />
       </Route>
 
       <Route element={<Layout />}>
@@ -47,6 +50,7 @@ export default function App() {
         {/* The real, live shop — connected to the real database. */}
         <Route path="store" element={<StorePage />} />
         <Route path="store/:code" element={<StoreProductPage />} />
+        <Route path="sell-your-dress" element={<SellYourDressPage />} />
         <Route path="selections" element={<SelectionsPage />} />
         <Route path="signup" element={<SignUpPage />} />
         <Route path="signin" element={<SignInPage />} />

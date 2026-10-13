@@ -11,6 +11,8 @@ export interface Category {
   nameHe: string | null
   sortOrder: number
   photoUrl: string | null
+  /** True for the one category ("فستانك لغيرك") that shows the "sell your own dress" banner. */
+  isResale: boolean
 }
 
 export interface ProductColor {

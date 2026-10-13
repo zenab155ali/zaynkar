@@ -95,7 +95,7 @@ export function ProductsProvider({ children }: { children: ReactNode }) {
     setLoading(true)
     setError(null)
     const [catRes, prodRes, pickRes, likeRes] = await Promise.all([
-      supabase.from('categories').select('id, name, name_he, sort_order, photo_url').order('sort_order'),
+      supabase.from('categories').select('id, name, name_he, sort_order, photo_url, is_resale').order('sort_order'),
       supabase
         .from('products')
         .select('*, categories(name), product_media(*), product_colors(*)')
@@ -115,7 +115,7 @@ export function ProductsProvider({ children }: { children: ReactNode }) {
     )
     const likeCounts = countBy((likeRes.data as { product_id: string }[] | null) ?? [])
 
-    setCategories((catRes.data ?? []).map((c) => ({ id: c.id, name: c.name, nameHe: c.name_he, sortOrder: c.sort_order, photoUrl: c.photo_url })))
+    setCategories((catRes.data ?? []).map((c) => ({ id: c.id, name: c.name, nameHe: c.name_he, sortOrder: c.sort_order, photoUrl: c.photo_url, isResale: c.is_resale })))
     setProducts(((prodRes.data as RawProduct[] | null) ?? []).map((row) => mapProduct(row, pickCounts, likeCounts)))
     setLoading(false)
   }, [])
