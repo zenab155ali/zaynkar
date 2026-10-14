@@ -1,11 +1,10 @@
-import { Link, Navigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { Heart } from 'lucide-react'
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { RequireSupabase } from '@/components/ui/RequireSupabase'
 import { SmartImage } from '@/components/ui/SmartImage'
 import { LikeButton } from '@/components/store/LikeButton'
-import { useAuth } from '@/context/AuthContext'
 import { useCurrency } from '@/context/CurrencyContext'
 import { useLanguage } from '@/context/LanguageContext'
 import { useLikes } from '@/context/LikesContext'
@@ -14,11 +13,8 @@ import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 function LikedItemsView() {
   const { t, pick } = useLanguage()
   useDocumentTitle(t('liked'))
-  const { user } = useAuth()
   const { loading, likedProducts } = useLikes()
   const { format } = useCurrency()
-
-  if (!user) return <Navigate to="/signin" state={{ from: '/liked' }} replace />
 
   return (
     <div className="container-page py-8">

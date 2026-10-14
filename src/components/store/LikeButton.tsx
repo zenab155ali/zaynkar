@@ -1,7 +1,5 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { Heart } from 'lucide-react'
-import { useAuth } from '@/context/AuthContext'
 import { useLanguage } from '@/context/LanguageContext'
 import { useLikes } from '@/context/LikesContext'
 
@@ -16,12 +14,10 @@ interface LikeButtonProps {
   className?: string
 }
 
-/** Heart toggle for a product — signed-out visitors are sent to sign in first. */
+/** Heart toggle for a product — works for signed-in customers and guests alike. */
 export function LikeButton({ productId, productName, count = 0, variant = 'card', className = '' }: LikeButtonProps) {
-  const { user } = useAuth()
   const { t } = useLanguage()
   const { isLiked, toggleLike } = useLikes()
-  const navigate = useNavigate()
   const liked = isLiked(productId)
   // The catalog's count already includes this customer's own like if they'd liked it before this
   // page loaded — comparing against that original state keeps the number correct as they toggle,
@@ -43,10 +39,6 @@ export function LikeButton({ productId, productName, count = 0, variant = 'card'
       onClick={(e) => {
         e.preventDefault()
         e.stopPropagation()
-        if (!user) {
-          navigate('/signin', { state: { from: window.location.pathname } })
-          return
-        }
         toggleLike(productId)
       }}
       className={base}

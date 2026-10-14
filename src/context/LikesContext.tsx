@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
 import { useAuth } from '@/context/AuthContext'
 import { useProducts } from '@/context/ProductsContext'
+import { getGuestId } from '@/lib/guestId'
 import { supabase } from '@/lib/supabase'
 import type { CatalogProduct } from '@/types/catalog'
 
@@ -9,16 +10,16 @@ interface LikesContextValue {
   likedIds: Set<string>
   likedProducts: CatalogProduct[]
   isLiked: (productId: string) => boolean
-  /** Returns false if the customer isn't signed in (caller should prompt sign-in). */
   toggleLike: (productId: string) => Promise<boolean>
 }
 
 const LikesContext = createContext<LikesContextValue | null>(null)
 
 /**
- * A customer's liked ("hearted") items — stored in Supabase per account, so the list
- * follows them across devices (unlike "My Selections", which is only a local draft
- * until submitted). Empty and read-only when signed out.
+ * A customer's liked ("hearted") items. Signed-in customers get it stored against their
+ * account (so it follows them across devices); a visitor who isn't signed in still gets to
+ * like things — it's remembered against a random id kept in this browser instead, the same
+ * way "My Selections" already works for guests.
  */
 export function LikesProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth()
@@ -27,21 +28,18 @@ export function LikesProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
-    if (!supabase || !user) {
+    if (!supabase) {
       setLikedIds(new Set())
       return
     }
     let active = true
     setLoading(true)
-    supabase
-      .from('product_likes')
-      .select('product_id')
-      .eq('customer_id', user.id)
-      .then(({ data }) => {
-        if (!active) return
-        setLikedIds(new Set((data ?? []).map((r) => r.product_id)))
-        setLoading(false)
-      })
+    const query = user ? supabase.from('product_likes').select('product_id').eq('customer_id', user.id) : supabase.from('product_likes').select('product_id').eq('guest_id', getGuestId())
+    query.then(({ data }) => {
+      if (!active) return
+      setLikedIds(new Set((data ?? []).map((r) => r.product_id)))
+      setLoading(false)
+    })
     return () => {
       active = false
     }
@@ -49,7 +47,8 @@ export function LikesProvider({ children }: { children: ReactNode }) {
 
   const toggleLike = useCallback(
     async (productId: string) => {
-      if (!supabase || !user) return false
+      if (!supabase) return false
+      const owner = user ? { column: 'customer_id' as const, value: user.id } : { column: 'guest_id' as const, value: getGuestId() }
       const alreadyLiked = likedIds.has(productId)
       // Optimistic update — feels instant, corrected below if the write fails.
       setLikedIds((prev) => {
@@ -58,8 +57,8 @@ export function LikesProvider({ children }: { children: ReactNode }) {
         return next
       })
       const { error } = alreadyLiked
-        ? await supabase.from('product_likes').delete().eq('product_id', productId).eq('customer_id', user.id)
-        : await supabase.from('product_likes').insert({ product_id: productId, customer_id: user.id })
+        ? await supabase.from('product_likes').delete().eq('product_id', productId).eq(owner.column, owner.value)
+        : await supabase.from('product_likes').insert({ product_id: productId, [owner.column]: owner.value })
       if (error) {
         setLikedIds((prev) => {
           const next = new Set(prev)

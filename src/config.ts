@@ -20,4 +20,5 @@ export const STORAGE_KEYS = {
   recentSearches: 'zaynkar:searches:v1',
   selections: 'zaynkar:selections:v1',
   lang: 'zaynkar:lang:v1',
+  guestId: 'zaynkar:guest-id:v1',
 } as const
