@@ -1,6 +1,6 @@
 {
   "repo": "zenab155ali/zaynkar",
-  "latestVersion": 30,
+  "latestVersion": 31,
   "versions": [
     {
       "version": 1,
@@ -181,6 +181,12 @@
       "date": "2026-10-13",
       "commit": "23836f4",
       "note": "Sell-your-own-dress resale feature with admin review"
+    },
+    {
+      "version": 31,
+      "date": "2026-10-14",
+      "commit": "9e9ff40",
+      "note": "Show like counts to all customers"
     }
   ]
 }
