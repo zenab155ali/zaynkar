@@ -67,16 +67,21 @@ export function LikeButton({ productId, productName, count = 0, variant = 'card'
   }
 
   return (
-    <div className={`relative ${className}`}>
-      {button}
-      {displayCount > 0 && (
-        <span
-          aria-hidden="true"
-          className="absolute -bottom-1.5 start-1/2 min-w-[1.1rem] -translate-x-1/2 rounded-full bg-ink px-1 text-center text-[0.625rem] font-medium leading-[1.1rem] text-ivory"
-        >
-          {displayCount}
-        </span>
-      )}
+    <div className={className}>
+      {/* A separate inner wrapper for the badge's own positioning context — the outer div already
+          carries the caller's own "absolute end-2 top-2"-style placement within the product card,
+          and position utilities don't stack, so the badge needs its own "relative" element here. */}
+      <div className="relative">
+        {button}
+        {displayCount > 0 && (
+          <span
+            aria-hidden="true"
+            className="absolute -bottom-1.5 start-1/2 min-w-[1.1rem] -translate-x-1/2 rounded-full bg-ink px-1 text-center text-[0.625rem] font-medium leading-[1.1rem] text-ivory"
+          >
+            {displayCount}
+          </span>
+        )}
+      </div>
     </div>
   )
 }
