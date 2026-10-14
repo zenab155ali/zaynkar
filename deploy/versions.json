@@ -1,6 +1,6 @@
 {
   "repo": "zenab155ali/zaynkar",
-  "latestVersion": 31,
+  "latestVersion": 32,
   "versions": [
     {
       "version": 1,
@@ -187,6 +187,12 @@
       "date": "2026-10-14",
       "commit": "9e9ff40",
       "note": "Show like counts to all customers"
+    },
+    {
+      "version": 32,
+      "date": "2026-10-15",
+      "commit": "2025e9a",
+      "note": "Fix like-count badge position (was floating disconnected from the heart)"
     }
   ]
 }
