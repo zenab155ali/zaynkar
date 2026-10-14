@@ -103,7 +103,7 @@ function ProductView() {
               </p>
               <h1 className="display mt-1 text-3xl sm:text-4xl">{productName}</h1>
             </div>
-            <LikeButton productId={product.id} productName={productName} variant="inline" className="shrink-0" />
+            <LikeButton productId={product.id} productName={productName} count={product.likeCount} variant="inline" className="shrink-0" />
           </div>
           <p className="mt-3 text-xl font-medium">{format(product.price)}</p>
 

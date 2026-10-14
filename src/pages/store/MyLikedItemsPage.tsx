@@ -45,7 +45,7 @@ function LikedItemsView() {
                     {cover && cover.type === 'image' && <SmartImage image={{ url: cover.url }} alt="" className="transition-transform duration-500 group-hover:scale-[1.03]" />}
                   </div>
                 </Link>
-                <LikeButton productId={p.id} productName={name} className="absolute end-2 top-2" />
+                <LikeButton productId={p.id} productName={name} count={p.likeCount} className="absolute end-2 top-2" />
                 <Link to={`/store/${p.code}`} className="mt-3 block">
                   <p className="font-mono text-[0.6875rem] text-muted" dir="ltr">
                     {p.code}

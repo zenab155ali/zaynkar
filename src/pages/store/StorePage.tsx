@@ -275,7 +275,7 @@ function StoreGrid() {
                       <Link to={`/store/${p.code}`} className="block">
                         <ProductCardMedia product={p} />
                       </Link>
-                      <LikeButton productId={p.id} productName={pick(p.name, p.nameHe)} className="absolute end-2 top-2" />
+                      <LikeButton productId={p.id} productName={pick(p.name, p.nameHe)} count={p.likeCount} className="absolute end-2 top-2" />
                       <Link to={`/store/${p.code}`} className="mt-3 block">
                         <p className="font-mono text-[0.6875rem] text-muted" dir="ltr">
                           {p.code}
