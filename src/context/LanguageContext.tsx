@@ -216,6 +216,7 @@ const STRINGS: Record<string, { ar: string; he: string }> = {
   },
   atLeastOnePhoto: { ar: 'ضيفي صورة واحدة على الأقل.', he: 'הוסיפי לפחות תמונה אחת.' },
   photoUploadFailed: { ar: 'تعذّر رفع إحدى الصور — حاولي مرة أخرى.', he: 'העלאת אחת התמונות נכשלה — נסי שוב.' },
+  photosStillUploading: { ar: 'استني شوي، الصور لسا عم تترفع…', he: 'רגע, התמונות עדיין מועלות…' },
   submissionFailed: { ar: 'تعذّر إرسال الطلب — حاولي مرة أخرى.', he: 'לא ניתן היה לשלוח את הבקשה — נסי שוב.' },
 }
 
