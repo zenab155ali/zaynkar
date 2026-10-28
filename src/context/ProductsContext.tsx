@@ -1,4 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
+import { PRODUCTS_PER_PAGE } from '@/config'
 import { supabase } from '@/lib/supabase'
 import type { Category, CatalogProduct, MediaType } from '@/types/catalog'
 
@@ -87,6 +88,8 @@ export function ProductsProvider({ children }: { children: ReactNode }) {
   const [categories, setCategories] = useState<Category[]>([])
   const [products, setProducts] = useState<CatalogProduct[]>([])
 
+  const PRODUCTS_SELECT = '*, categories(name), product_media(*), product_colors(*)'
+
   const refresh = useCallback(async () => {
     if (!supabase) {
       setLoading(false)
@@ -94,18 +97,22 @@ export function ProductsProvider({ children }: { children: ReactNode }) {
     }
     setLoading(true)
     setError(null)
-    const [catRes, prodRes, pickRes, likeRes] = await Promise.all([
+
+    // The full catalog (every product's photos + colors) is a few hundred KB and, with a couple
+    // hundred products, can take several seconds to arrive on a slow connection — long enough
+    // that customers reported waiting on a blank page. So the first screenful loads on its own,
+    // fast, lets the store render right away, and the rest of the catalog quietly fills in a
+    // moment later in the background — filtering/sorting always just reads whatever's currently
+    // in `products`, so this needs no changes anywhere else.
+    const [catRes, firstPageRes, pickRes, likeRes] = await Promise.all([
       supabase.from('categories').select('id, name, name_he, sort_order, photo_url, is_resale').order('sort_order'),
-      supabase
-        .from('products')
-        .select('*, categories(name), product_media(*), product_colors(*)')
-        .order('created_at', { ascending: false }),
+      supabase.from('products').select(PRODUCTS_SELECT).order('created_at', { ascending: false }).limit(PRODUCTS_PER_PAGE),
       supabase.rpc('get_product_pick_counts'),
       supabase.from('product_likes').select('product_id'),
     ])
 
-    if (catRes.error || prodRes.error) {
-      setError(catRes.error?.message ?? prodRes.error?.message ?? 'Failed to load the catalog.')
+    if (catRes.error || firstPageRes.error) {
+      setError(catRes.error?.message ?? firstPageRes.error?.message ?? 'Failed to load the catalog.')
       setLoading(false)
       return
     }
@@ -116,8 +123,15 @@ export function ProductsProvider({ children }: { children: ReactNode }) {
     const likeCounts = countBy((likeRes.data as { product_id: string }[] | null) ?? [])
 
     setCategories((catRes.data ?? []).map((c) => ({ id: c.id, name: c.name, nameHe: c.name_he, sortOrder: c.sort_order, photoUrl: c.photo_url, isResale: c.is_resale })))
-    setProducts(((prodRes.data as RawProduct[] | null) ?? []).map((row) => mapProduct(row, pickCounts, likeCounts)))
+    setProducts(((firstPageRes.data as RawProduct[] | null) ?? []).map((row) => mapProduct(row, pickCounts, likeCounts)))
     setLoading(false)
+
+    if ((firstPageRes.data?.length ?? 0) === PRODUCTS_PER_PAGE) {
+      const { data: restData, error: restError } = await supabase.from('products').select(PRODUCTS_SELECT).order('created_at', { ascending: false })
+      if (!restError) {
+        setProducts(((restData as RawProduct[] | null) ?? []).map((row) => mapProduct(row, pickCounts, likeCounts)))
+      }
+    }
   }, [])
 
   useEffect(() => {

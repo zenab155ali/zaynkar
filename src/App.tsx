@@ -1,23 +1,8 @@
+import { lazy, Suspense } from 'react'
 import { Navigate, Route, Routes } from 'react-router-dom'
 import { Layout } from '@/components/layout/Layout'
-import AccountPage from '@/pages/AccountPage'
-import BagPage from '@/pages/BagPage'
-import CheckoutPage from '@/pages/CheckoutPage'
-import CollectionPage from '@/pages/CollectionPage'
-import FavoritesPage from '@/pages/FavoritesPage'
 import HomePage from '@/pages/HomePage'
 import NotFoundPage from '@/pages/NotFoundPage'
-import OrderConfirmationPage from '@/pages/OrderConfirmationPage'
-import ProductPage from '@/pages/ProductPage'
-import SearchPage from '@/pages/SearchPage'
-import StaticPage from '@/pages/StaticPage'
-import AdminCategoriesPage from '@/pages/admin/AdminCategoriesPage'
-import AdminLayout from '@/pages/admin/AdminLayout'
-import AdminLoginPage from '@/pages/admin/AdminLoginPage'
-import AdminProductFormPage from '@/pages/admin/AdminProductFormPage'
-import AdminProductsPage from '@/pages/admin/AdminProductsPage'
-import AdminRequestsPage from '@/pages/admin/AdminRequestsPage'
-import AdminResaleSubmissionsPage from '@/pages/admin/AdminResaleSubmissionsPage'
 import MyLikedItemsPage from '@/pages/store/MyLikedItemsPage'
 import MyRequestsPage from '@/pages/store/MyRequestsPage'
 import SelectionsPage from '@/pages/store/SelectionsPage'
@@ -28,9 +13,32 @@ import StorePage from '@/pages/store/StorePage'
 import StoreProductPage from '@/pages/store/StoreProductPage'
 import { usePageViewTracking } from '@/hooks/usePageViewTracking'
 
+// Loaded on demand instead of shipped to every customer: the admin panel (customers never
+// open it) and the old prototype/mock-data pages (nothing links to them anymore) were
+// previously bundled into the same file every shopper had to download before seeing a
+// single product — a meaningful chunk of what made the store feel slow to load.
+const AdminCategoriesPage = lazy(() => import('@/pages/admin/AdminCategoriesPage'))
+const AdminLayout = lazy(() => import('@/pages/admin/AdminLayout'))
+const AdminLoginPage = lazy(() => import('@/pages/admin/AdminLoginPage'))
+const AdminProductFormPage = lazy(() => import('@/pages/admin/AdminProductFormPage'))
+const AdminProductsPage = lazy(() => import('@/pages/admin/AdminProductsPage'))
+const AdminRequestsPage = lazy(() => import('@/pages/admin/AdminRequestsPage'))
+const AdminResaleSubmissionsPage = lazy(() => import('@/pages/admin/AdminResaleSubmissionsPage'))
+
+const AccountPage = lazy(() => import('@/pages/AccountPage'))
+const BagPage = lazy(() => import('@/pages/BagPage'))
+const CheckoutPage = lazy(() => import('@/pages/CheckoutPage'))
+const CollectionPage = lazy(() => import('@/pages/CollectionPage'))
+const FavoritesPage = lazy(() => import('@/pages/FavoritesPage'))
+const OrderConfirmationPage = lazy(() => import('@/pages/OrderConfirmationPage'))
+const ProductPage = lazy(() => import('@/pages/ProductPage'))
+const SearchPage = lazy(() => import('@/pages/SearchPage'))
+const StaticPage = lazy(() => import('@/pages/StaticPage'))
+
 export default function App() {
   usePageViewTracking()
   return (
+    <Suspense fallback={null}>
     <Routes>
       {/* Admin — separate shell, no site header/footer, reached only by knowing the URL + the admin login. */}
       <Route path="admin/login" element={<AdminLoginPage />} />
@@ -73,5 +81,6 @@ export default function App() {
         <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Routes>
+    </Suspense>
   )
 }

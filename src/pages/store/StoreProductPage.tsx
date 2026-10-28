@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { ShoppingBag } from 'lucide-react'
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
@@ -44,6 +44,18 @@ function ProductView() {
     if (!product) return []
     return selectedColor?.photoUrl ? [{ url: selectedColor.photoUrl, type: 'image' as const }, ...product.media] : product.media
   }, [product, selectedColor])
+
+  // Every color's photo (already small — compressed at upload time) loads in the background as
+  // soon as the page opens, so switching colors afterward swaps instantly instead of waiting on
+  // a fresh download each time.
+  useEffect(() => {
+    if (!product) return
+    for (const c of product.colors) {
+      if (!c.photoUrl) continue
+      const img = new Image()
+      img.src = c.photoUrl
+    }
+  }, [product])
 
   if (!product || !productName) return <NotFoundPage />
 
