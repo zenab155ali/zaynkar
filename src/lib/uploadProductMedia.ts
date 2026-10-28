@@ -22,13 +22,16 @@ export function validateMediaFile(file: File, allowVideo: boolean): string | nul
   return null
 }
 
-const MAX_IMAGE_DIMENSION = 1600
+// 800px covers even a full-width product photo on a retina phone screen with room to spare, and
+// shrinks a typical phone-camera photo far more than 1600px did — the difference matters because
+// a product grid loads a couple dozen of these at once, and on a slow connection they all share
+// the same limited bandwidth, so every KB saved per photo speeds up the whole page, not just one.
+const MAX_IMAGE_DIMENSION = 800
 
 /**
- * Shrinks + re-encodes a photo to WebP right in the browser, once, before it's ever uploaded —
- * phone-camera photos are often several thousand pixels wide and several hundred KB; customers
- * never need more than ~1600px. Compressing at upload time (instead of resizing on every view later)
- * means there's no ongoing service the live site depends on for photos to load reliably.
+ * Shrinks + re-encodes a photo to WebP right in the browser, once, before it's ever uploaded.
+ * Compressing at upload time (instead of resizing on every view later) means there's no ongoing
+ * service the live site depends on for photos to load reliably.
  */
 async function compressImageBlob(blob: Blob, name: string): Promise<File> {
   try {
@@ -83,11 +86,11 @@ export async function uploadResaleSubmissionMedia(file: File): Promise<{ url: st
  */
 export async function recompressExistingPhoto(url: string): Promise<string | null> {
   if (!supabase) return null
-  if (url.endsWith('.webp')) return null // already compressed by this same tool
   try {
     const res = await fetch(url)
     if (!res.ok) return null
     const blob = await res.blob()
+    if (blob.size < 40 * 1024) return null // already small enough — not worth a round trip
     const compressed = await compressImageBlob(blob, 'photo.jpg')
     if (compressed.type !== 'image/webp') return null // no meaningful size win — leave the original alone
     const path = `${crypto.randomUUID()}.webp`
