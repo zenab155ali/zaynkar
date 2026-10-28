@@ -1,0 +1,1 @@
+async function e(e){let t=e.trim();if(!t)return null;try{let e=await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(t)}&langpair=ar|he`);if(!e.ok)return null;let n=(await e.json())?.responseData?.translatedText;return typeof n==`string`&&n.trim()?n.trim():null}catch{return null}}export{e as t};

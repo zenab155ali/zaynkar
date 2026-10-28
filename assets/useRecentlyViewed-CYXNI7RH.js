@@ -1,0 +1,1 @@
+import{a as e,c as t,o as n}from"./createLucideIcon-0kkGNd2A.js";import{t as r}from"./useLocalStorage-BP4aAr5w.js";var i=t(n(),1),a=12;function o(){let[t,n]=r(e.recentlyViewed,[]);return{ids:t,track:(0,i.useCallback)(e=>n(t=>t[0]===e?t:[e,...t.filter(t=>t!==e)].slice(0,a)),[n]),clear:(0,i.useCallback)(()=>n([]),[n])}}export{o as t};
