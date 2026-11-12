@@ -1,6 +1,6 @@
 {
   "repo": "zenab155ali/zaynkar",
-  "latestVersion": 36,
+  "latestVersion": 37,
   "versions": [
     {
       "version": 1,
@@ -217,6 +217,12 @@
       "date": "2026-10-29",
       "commit": "e332094",
       "note": "Shrink photos further (800px cap) to reduce bandwidth contention on the grid"
+    },
+    {
+      "version": 37,
+      "date": "2026-11-13",
+      "commit": "844545a",
+      "note": "Marquee, auto-scrolling categories, pink theme, related products, legal content"
     }
   ]
 }
