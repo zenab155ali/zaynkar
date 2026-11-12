@@ -100,28 +100,74 @@ export const STATIC_PAGES: StaticPageDef[] = [
   },
   {
     slug: 'privacy',
-    title: 'Privacy Policy',
-    eyebrow: 'Legal',
-    intro: 'How we treat your information.',
+    title: 'سياسة الخصوصية',
+    eyebrow: 'قانوني',
+    intro: 'كيف نتعامل مع معلوماتكِ.',
     sections: [
-      { heading: 'This prototype', body: ['This prototype stores your bag, favorites and preferences only in your browser (localStorage). Nothing is sent to a server, and no payment or card data is collected.'] },
-      { heading: 'Future policy', body: ['A full privacy policy covering accounts, payments, sellers and cookies will be published before ZAYNKAR launches.'] },
+      {
+        heading: '١. المعلومات التي نجمعها',
+        body: [
+          'عند إنشاء حساب أو إرسال طلب، نجمع اسمكِ ورقم هاتفكِ وبريدكِ الإلكتروني، وبلدكِ/مدينتكِ إذا أدخلتيها. إذا اخترتِ عرض فستان للبيع عبر "فستانك لغيرك"، نجمع أيضًا حساب الإنستغرام إذا أضفتيه — وهاد ما بيظهر لأي زبونة تانية، بس إلنا.',
+        ],
+      },
+      {
+        heading: '٢. كيف نستخدم معلوماتكِ',
+        body: ['نستخدم هاي المعلومات فقط للتواصل معكِ وتأكيد طلبكِ وتنسيق التوصيل — ما منبيعها ولا منشاركها مع أي جهة خارجية.'],
+      },
+      {
+        heading: '٣. أمان البيانات',
+        body: ['بياناتكِ محفوظة بشكل آمن عبر مزود خدمة موثوق (Supabase)، وما حدا يقدر يوصلها غيرنا.'],
+      },
+      {
+        heading: '٤. إحصائيات الزيارات',
+        body: ['منجمع عدد زيارات الموقع بشكل عام فقط (بدون أي معلومة شخصية) عشان نفهم كيف يستخدم الزبائن الموقع ونحسّنه.'],
+      },
+      {
+        heading: '٥. حذف بياناتكِ',
+        body: ['إذا بدّكِ تمسحي حسابكِ أو بياناتكِ بشكل كامل، تواصلي معنا مباشرة وبنساعدكِ فورًا.'],
+      },
     ],
   },
   {
     slug: 'terms',
-    title: 'Terms & Conditions',
-    eyebrow: 'Legal',
-    intro: 'The rules for using ZAYNKAR.',
+    title: 'الشروط والأحكام',
+    eyebrow: 'قانوني',
+    intro: 'كل اللي بدّكِ تعرفيه قبل ما تطلبي.',
     sections: [
-      { heading: 'Prototype', body: ['ZAYNKAR is a demonstration. Products, stores, reviews and prices are sample content. No orders can be placed and no payments are processed.'] },
-      { heading: 'Future terms', body: ['Full terms for buyers and sellers will be published before launch.'] },
+      {
+        heading: '١. تأكيد الطلب',
+        body: ['إرسال قائمتكِ ما بياخد أي دفعة — هو بس طلب نراجعه ونتواصل معكِ لتأكيد التفاصيل وإتمام الطلب.'],
+      },
+      {
+        heading: '٢. الطلب والشحن من تركيا',
+        body: [
+          'جميع القطع التي نعرضها يتم طلبها وشحنها من تركيا.',
+          'وبما أننا نجمع عدة طلبات في شحنة واحدة، فإن الشحن لا يتم بشكل يومي.',
+          'قد تختلف مواعيد الشحن والتوصيل حسب عدد الطلبات وجاهزية المنتجات لدى الموردين.',
+          'نحرص على إبلاغكِ بموعد الشحنة المتوقع عندما تتوفر لدينا المعلومات.',
+          'وإذا كنتِ بحاجة إلى قطعة لمناسبة معينة، فنرجو إخبارنا بموعد المناسبة قبل الطلب.',
+          'حتى نتمكن من توضيح إمكانية وصولها في الوقت المناسب، دون تقديم وعود غير مؤكدة.',
+          'نحن نقدّر صبركِ وثقتكِ، ونسعى لأن تكون تجربة طلبكِ واضحة ومريحة قدر الإمكان. 🤎',
+        ],
+      },
+      {
+        heading: '٣. سياسة الاسترجاع والاستبدال',
+        body: [
+          'نرجو منكِ التأكد جيدًا من المقاس واللون وجميع تفاصيل المنتج قبل تأكيد الطلب.',
+          'فمعظم القطع يتم طلبها خصيصًا لكِ من الموردين في تركيا.',
+          'ولهذا السبب، لا نستطيع توفير استرجاع أو استبدال اختياري بعد تأكيد الطلب لمجرد تغيير الرأي.',
+          'إذا كنتِ مترددة بشأن المقاس أو لديكِ أي استفسار، فلا تترددي في التواصل معنا قبل الطلب.',
+          'يسعدنا مساعدتكِ في اختيار القطعة المناسبة وتوضيح التفاصيل المتوفرة لدينا.',
+          'وفي حال وصول منتج معيب أو مختلف عن طلبكِ، يرجى التواصل معنا لنراجع المشكلة ونعالجها وفقًا لحقوقكِ القانونية.',
+          'نحرص على الوضوح معكِ منذ البداية، لأن ثقتكِ ورضاكِ يهمّاننا. 🤎',
+        ],
+      },
     ],
   },
   {
     slug: 'cookies',
     title: 'Cookie Settings',
-    eyebrow: 'Legal',
+    eyebrow: 'قانوني',
     intro: 'Choose which optional storage ZAYNKAR may use. Essential storage keeps your bag and favorites working.',
     kind: 'cookies',
   },

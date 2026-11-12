@@ -198,7 +198,7 @@ export function ProductCardMedia({ product }: { product: CatalogProduct }) {
                       e.stopPropagation()
                       setQaColor(c.colorName)
                     }}
-                    className={`border px-3.5 py-2 text-sm transition-colors ${qaColor === c.colorName ? 'border-ink bg-ink text-ivory' : 'border-line bg-white hover:border-ink'}`}
+                    className={`border px-3.5 py-2 text-sm transition-colors ${qaColor === c.colorName ? 'border-primary bg-primary text-ivory' : 'border-line bg-white hover:border-primary'}`}
                   >
                     {pick(c.colorName, c.colorNameHe)}
                   </button>
@@ -222,7 +222,7 @@ export function ProductCardMedia({ product }: { product: CatalogProduct }) {
                       setQaSize(s)
                       setQaSizeError(false)
                     }}
-                    className={`h-11 min-w-12 border px-3 text-sm transition-colors ${qaSize === s ? 'border-ink bg-ink text-ivory' : 'border-line bg-white hover:border-ink'}`}
+                    className={`h-11 min-w-12 border px-3 text-sm transition-colors ${qaSize === s ? 'border-primary bg-primary text-ivory' : 'border-line bg-white hover:border-primary'}`}
                   >
                     {s}
                   </button>

@@ -12,6 +12,7 @@ import { COUNTRIES } from '@/data/countries'
 import { PRODUCTS } from '@/data/products'
 import { STATIC_PAGES, getStaticPage } from '@/data/staticPages'
 import { STORES } from '@/data/stores'
+import { useLanguage } from '@/context/LanguageContext'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { useLocalStorage } from '@/hooks/useLocalStorage'
 import NotFoundPage from '@/pages/NotFoundPage'
@@ -116,12 +117,13 @@ export default function StaticPage() {
   const { slug = '' } = useParams()
   const page = getStaticPage(slug)
   const [guide, setGuide] = useState<'clothing' | 'shoes' | null>(null)
+  const { t } = useLanguage()
   useDocumentTitle(page?.title)
   if (!page) return <NotFoundPage />
 
   return (
     <div className="container-page pt-4 sm:pt-6">
-      <Breadcrumbs items={[{ label: 'Home', to: '/' }, { label: page.eyebrow }, { label: page.title }]} />
+      <Breadcrumbs items={[{ label: t('home'), to: '/' }, { label: page.eyebrow }, { label: page.title }]} />
 
       <div className="grid gap-10 pb-6 pt-8 lg:grid-cols-[14rem_1fr] lg:gap-16">
         <nav aria-label={page.eyebrow} className="hidden lg:block">

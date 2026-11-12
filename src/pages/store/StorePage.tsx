@@ -4,9 +4,7 @@ import { Search, Shirt, SlidersHorizontal, X } from 'lucide-react'
 import { Dialog } from '@/components/ui/Dialog'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { RequireSupabase } from '@/components/ui/RequireSupabase'
-import { LikeButton } from '@/components/store/LikeButton'
-import { ProductCardMedia } from '@/components/store/ProductCardMedia'
-import { useCurrency } from '@/context/CurrencyContext'
+import { ProductCard } from '@/components/store/ProductCard'
 import { useLanguage } from '@/context/LanguageContext'
 import { useProducts } from '@/context/ProductsContext'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
@@ -59,7 +57,7 @@ function FilterControls({ sizes, colors, filters, onChange }: { sizes: string[];
                 type="button"
                 aria-pressed={filters.sizes.includes(s)}
                 onClick={() => toggle('sizes', s)}
-                className={`h-10 min-w-11 border px-3 text-sm transition-colors ${filters.sizes.includes(s) ? 'border-ink bg-ink text-ivory' : 'border-line bg-white hover:border-ink'}`}
+                className={`h-10 min-w-11 border px-3 text-sm transition-colors ${filters.sizes.includes(s) ? 'border-primary bg-primary text-ivory' : 'border-line bg-white hover:border-primary'}`}
               >
                 {s}
               </button>
@@ -77,7 +75,7 @@ function FilterControls({ sizes, colors, filters, onChange }: { sizes: string[];
                 type="button"
                 aria-pressed={filters.colors.includes(c)}
                 onClick={() => toggle('colors', c)}
-                className={`border px-3 py-2 text-sm transition-colors ${filters.colors.includes(c) ? 'border-ink bg-ink text-ivory' : 'border-line bg-white hover:border-ink'}`}
+                className={`border px-3 py-2 text-sm transition-colors ${filters.colors.includes(c) ? 'border-primary bg-primary text-ivory' : 'border-line bg-white hover:border-primary'}`}
               >
                 {c}
               </button>
@@ -114,7 +112,6 @@ function FilterControls({ sizes, colors, filters, onChange }: { sizes: string[];
 }
 
 function StoreGrid() {
-  const { format } = useCurrency()
   const { t, pick } = useLanguage()
   const { loading, error, products, categories } = useProducts()
   const navigate = useNavigate()
@@ -269,23 +266,9 @@ function StoreGrid() {
               </EmptyState>
             ) : (
               <div className="grid grid-cols-2 gap-x-3 gap-y-8 sm:grid-cols-3">
-                {filtered.map((p) => {
-                  return (
-                    <article key={p.id} className="group relative">
-                      <Link to={`/store/${p.code}`} className="block">
-                        <ProductCardMedia product={p} />
-                      </Link>
-                      <LikeButton productId={p.id} productName={pick(p.name, p.nameHe)} className="absolute end-2 top-2" />
-                      <Link to={`/store/${p.code}`} className="mt-3 block">
-                        <p className="font-mono text-[0.6875rem] text-muted" dir="ltr">
-                          {p.code}
-                        </p>
-                        <h2 className="text-sm leading-snug group-hover:underline">{pick(p.name, p.nameHe)}</h2>
-                        <p className="mt-1 text-sm font-medium">{format(p.price)}</p>
-                      </Link>
-                    </article>
-                  )
-                })}
+                {filtered.map((p) => (
+                  <ProductCard key={p.id} product={p} />
+                ))}
               </div>
             )}
           </div>

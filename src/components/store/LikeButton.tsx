@@ -35,7 +35,7 @@ export function LikeButton({ productId, productName, variant = 'card', className
       }}
       className={base}
     >
-      <Heart size={variant === 'card' ? 18 : 20} strokeWidth={1.6} className={`transition-all duration-200 ${liked ? 'scale-105 fill-sale text-sale' : ''}`} aria-hidden="true" />
+      <Heart size={variant === 'card' ? 18 : 20} strokeWidth={1.6} className={`transition-all duration-200 ${liked ? 'scale-105 fill-primary text-primary' : ''}`} aria-hidden="true" />
     </button>
   )
 

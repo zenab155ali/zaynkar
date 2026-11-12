@@ -3,7 +3,9 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { ShoppingBag } from 'lucide-react'
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
 import { RequireSupabase } from '@/components/ui/RequireSupabase'
+import { QuantityStepper } from '@/components/product/QuantityStepper'
 import { LikeButton } from '@/components/store/LikeButton'
+import { ProductCard } from '@/components/store/ProductCard'
 import { StoreMediaGallery } from '@/components/store/StoreMediaGallery'
 import { useCurrency } from '@/context/CurrencyContext'
 import { useLanguage } from '@/context/LanguageContext'
@@ -22,7 +24,7 @@ interface EditLineState {
 
 function ProductView() {
   const { code = '' } = useParams()
-  const { getByCode } = useProducts()
+  const { getByCode, products } = useProducts()
   const product = getByCode(code)
   const { format } = useCurrency()
   const { t, pick } = useLanguage()
@@ -39,6 +41,7 @@ function ProductView() {
   const [colorName, setColorName] = useState(editState?.color ?? product?.colors[0]?.colorName ?? '')
   const [size, setSize] = useState<string | null>(editState?.size ?? null)
   const [sizeError, setSizeError] = useState(false)
+  const [quantity, setQuantity] = useState(1)
 
   const selectedColor = product?.colors.find((c) => c.colorName === colorName)
   const media = useMemo(() => {
@@ -56,6 +59,12 @@ function ProductView() {
     }
   }, [product])
 
+  // Other pieces from the same category, so there's always a next thing to discover.
+  const related = useMemo(() => {
+    if (!product) return []
+    return products.filter((p) => p.isActive && p.categoryId === product.categoryId && p.id !== product.id).slice(0, 8)
+  }, [products, product])
+
   if (!product || !productName) return <NotFoundPage />
 
   const colorPicker = product.colors.length > 0 && (
@@ -72,7 +81,7 @@ function ProductView() {
             key={c.id}
             type="button"
             onClick={() => setColorName(c.colorName)}
-            className={`border px-3.5 py-2 text-sm transition-colors ${colorName === c.colorName ? 'border-ink bg-ink text-ivory' : 'border-line bg-white hover:border-ink'}`}
+            className={`border px-3.5 py-2 text-sm transition-colors ${colorName === c.colorName ? 'border-primary bg-primary text-ivory' : 'border-line bg-white hover:border-primary'}`}
           >
             {pick(c.colorName, c.colorNameHe)}
           </button>
@@ -88,12 +97,12 @@ function ProductView() {
     }
     if (editState?.editLineId) {
       remove(editState.editLineId)
-      add({ productId: product.id, size, colorName: colorName || t('noColorSelected'), quantity: 1 })
+      add({ productId: product.id, size, colorName: colorName || t('noColorSelected'), quantity })
       toast({ title: t('cartUpdated'), description: `${productName} · ${colorName} · ${size}` })
       navigate('/selections')
       return
     }
-    add({ productId: product.id, size, colorName: colorName || t('noColorSelected'), quantity: 1 })
+    add({ productId: product.id, size, colorName: colorName || t('noColorSelected'), quantity })
     toast({ title: t('addedToCart'), description: `${productName} · ${colorName} · ${size}`, action: { label: t('viewCart'), to: '/selections' } })
   }
 
@@ -138,7 +147,7 @@ function ProductView() {
                       setSize(s)
                       setSizeError(false)
                     }}
-                    className={`h-11 min-w-12 border px-3 text-sm transition-colors ${size === s ? 'border-ink bg-ink text-ivory' : 'border-line bg-white hover:border-ink'}`}
+                    className={`h-11 min-w-12 border px-3 text-sm transition-colors ${size === s ? 'border-primary bg-primary text-ivory' : 'border-line bg-white hover:border-primary'}`}
                   >
                     {s}
                   </button>
@@ -146,6 +155,11 @@ function ProductView() {
               </div>
             </div>
           )}
+
+          <div className="mt-6">
+            <p className="mb-2 text-sm">{t('quantity')}</p>
+            <QuantityStepper value={quantity} onChange={setQuantity} />
+          </div>
 
           <button type="button" onClick={onAdd} className="btn btn-primary mt-8 !h-14 w-full">
             <ShoppingBag size={18} aria-hidden="true" /> {editState?.editLineId ? t('updateCart') : t('addToCart')}
@@ -155,6 +169,17 @@ function ProductView() {
           </button>
         </div>
       </div>
+
+      {related.length > 0 && (
+        <div className="mt-16">
+          <h2 className="display text-2xl sm:text-3xl">{t('discoverMoreCollection')}</h2>
+          <div className="mt-6 grid grid-cols-2 gap-x-3 gap-y-8 sm:grid-cols-3 lg:grid-cols-4">
+            {related.map((p) => (
+              <ProductCard key={p.id} product={p} />
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   )
 }
