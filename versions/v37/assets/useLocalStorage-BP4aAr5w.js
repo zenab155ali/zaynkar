@@ -1,0 +1,1 @@
+import{c as e,o as t}from"./createLucideIcon-0kkGNd2A.js";var n=e(t(),1);function r(e,t){let[r,i]=(0,n.useState)(()=>{try{let n=localStorage.getItem(e);return n===null?t:JSON.parse(n)}catch{return t}});return(0,n.useEffect)(()=>{try{localStorage.setItem(e,JSON.stringify(r))}catch{}},[e,r]),[r,i]}export{r as t};
