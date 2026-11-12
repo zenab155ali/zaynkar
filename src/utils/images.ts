@@ -41,3 +41,47 @@ export function imageSrcSet(image: ProductImage, widths: number[], ratio?: numbe
   if (image.url) return undefined
   return widths.map((w) => `${imageUrl(image, w, ratio)} ${w}w`).join(', ')
 }
+
+// ── Photo preloading ────────────────────────────────────────────────────────────────────────────
+// Remembers which photo URLs the browser has already fully downloaded + decoded, so the product
+// gallery can swap to them instantly (no loading screen) and only waits for photos it truly lacks.
+const readyPhotos = new Set<string>()
+const pendingPhotos = new Map<string, Promise<void>>()
+
+export function isPhotoReady(url: string): boolean {
+  return readyPhotos.has(url)
+}
+
+export function markPhotoReady(url: string): void {
+  readyPhotos.add(url)
+}
+
+/** Downloads + decodes a photo in the background. Safe to call many times for the same URL. */
+export function preloadPhoto(url: string, highPriority = false): Promise<void> {
+  if (!url || readyPhotos.has(url)) return Promise.resolve()
+  const existing = pendingPhotos.get(url)
+  if (existing) return existing
+  const img = new Image()
+  if (highPriority) img.fetchPriority = 'high'
+  img.decoding = 'async'
+  const done = new Promise<void>((resolve) => {
+    img.onload = () => {
+      // decode() makes sure the photo is ready to paint, so showing it later causes no flash.
+      img
+        .decode()
+        .catch(() => undefined)
+        .finally(() => {
+          readyPhotos.add(url)
+          pendingPhotos.delete(url)
+          resolve()
+        })
+    }
+    img.onerror = () => {
+      pendingPhotos.delete(url)
+      resolve()
+    }
+  })
+  img.src = url
+  pendingPhotos.set(url, done)
+  return done
+}

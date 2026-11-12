@@ -12,6 +12,7 @@ import { useSelections } from '@/context/SelectionsContext'
 import { useToast } from '@/context/ToastContext'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import NotFoundPage from '@/pages/NotFoundPage'
+import { preloadPhoto, resizedImageUrl } from '@/utils/images'
 
 interface EditLineState {
   editLineId?: string
@@ -51,9 +52,7 @@ function ProductView() {
   useEffect(() => {
     if (!product) return
     for (const c of product.colors) {
-      if (!c.photoUrl) continue
-      const img = new Image()
-      img.src = c.photoUrl
+      if (c.photoUrl) void preloadPhoto(resizedImageUrl(c.photoUrl, 800))
     }
   }, [product])
 
@@ -115,7 +114,7 @@ function ProductView() {
               </p>
               <h1 className="display mt-1 text-3xl sm:text-4xl">{productName}</h1>
             </div>
-            <LikeButton productId={product.id} productName={productName} count={product.likeCount} variant="inline" className="shrink-0" />
+            <LikeButton productId={product.id} productName={productName} variant="inline" className="shrink-0" />
           </div>
           <p className="mt-3 text-xl font-medium">{format(product.price)}</p>
 

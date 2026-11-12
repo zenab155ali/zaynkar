@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { Heart } from 'lucide-react'
 import { useLanguage } from '@/context/LanguageContext'
 import { useLikes } from '@/context/LikesContext'
@@ -6,24 +5,17 @@ import { useLikes } from '@/context/LikesContext'
 interface LikeButtonProps {
   productId: string
   productName: string
-  /** Total likes for this product at page load (from the catalog) — shown next to the heart
-   * for every product, regardless of whether an admin or a customer (resale) added it. */
-  count?: number
   /** `card` floats over a product image; `inline` is a bordered button for the product page. */
   variant?: 'card' | 'inline'
   className?: string
 }
 
-/** Heart toggle for a product — works for signed-in customers and guests alike. */
-export function LikeButton({ productId, productName, count = 0, variant = 'card', className = '' }: LikeButtonProps) {
+/** Heart toggle for a product — works for signed-in customers and guests alike. Deliberately
+ * private: a customer never sees how many other people liked a product, only their own heart. */
+export function LikeButton({ productId, productName, variant = 'card', className = '' }: LikeButtonProps) {
   const { t } = useLanguage()
   const { isLiked, toggleLike } = useLikes()
   const liked = isLiked(productId)
-  // The catalog's count already includes this customer's own like if they'd liked it before this
-  // page loaded — comparing against that original state keeps the number correct as they toggle,
-  // without needing a fresh server round-trip just to re-count.
-  const [likedAtMount] = useState(liked)
-  const displayCount = Math.max(0, count + (liked ? 1 : 0) - (likedAtMount ? 1 : 0))
 
   const base =
     variant === 'card'
@@ -47,33 +39,5 @@ export function LikeButton({ productId, productName, count = 0, variant = 'card'
     </button>
   )
 
-  if (variant === 'inline') {
-    return (
-      <div className={`flex flex-col items-center gap-1 ${className}`}>
-        {button}
-        <span className="text-[0.6875rem] text-muted" aria-hidden="true">
-          {displayCount}
-        </span>
-      </div>
-    )
-  }
-
-  return (
-    <div className={className}>
-      {/* A separate inner wrapper for the badge's own positioning context — the outer div already
-          carries the caller's own "absolute end-2 top-2"-style placement within the product card,
-          and position utilities don't stack, so the badge needs its own "relative" element here. */}
-      <div className="relative">
-        {button}
-        {displayCount > 0 && (
-          <span
-            aria-hidden="true"
-            className="absolute -bottom-1.5 start-1/2 min-w-[1.1rem] -translate-x-1/2 rounded-full bg-ink px-1 text-center text-[0.625rem] font-medium leading-[1.1rem] text-ivory"
-          >
-            {displayCount}
-          </span>
-        )}
-      </div>
-    </div>
-  )
+  return <div className={className}>{button}</div>
 }

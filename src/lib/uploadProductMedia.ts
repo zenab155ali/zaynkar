@@ -62,7 +62,7 @@ async function uploadMediaTo(bucket: string, file: File): Promise<{ url: string;
   const uploadFile = type === 'image' ? await compressImageBlob(file, file.name) : file
   const ext = uploadFile.name.split('.').pop()?.toLowerCase() || (type === 'video' ? 'mp4' : 'jpg')
   const path = `${crypto.randomUUID()}.${ext}`
-  const { error } = await supabase.storage.from(bucket).upload(path, uploadFile, { contentType: uploadFile.type, upsert: false })
+  const { error } = await supabase.storage.from(bucket).upload(path, uploadFile, { contentType: uploadFile.type, upsert: false, cacheControl: '31536000' })
   if (error) throw new Error(error.message)
   const { data } = supabase.storage.from(bucket).getPublicUrl(path)
   return { url: data.publicUrl, type }
@@ -94,7 +94,7 @@ export async function recompressExistingPhoto(url: string): Promise<string | nul
     const compressed = await compressImageBlob(blob, 'photo.jpg')
     if (compressed.type !== 'image/webp') return null // no meaningful size win — leave the original alone
     const path = `${crypto.randomUUID()}.webp`
-    const { error } = await supabase.storage.from(PRODUCT_MEDIA_BUCKET).upload(path, compressed, { contentType: 'image/webp', upsert: false })
+    const { error } = await supabase.storage.from(PRODUCT_MEDIA_BUCKET).upload(path, compressed, { contentType: 'image/webp', upsert: false, cacheControl: '31536000' })
     if (error) return null
     const { data } = supabase.storage.from(PRODUCT_MEDIA_BUCKET).getPublicUrl(path)
     return data.publicUrl
